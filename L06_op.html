@@ -67,6 +67,7 @@
     text-wrap: balance;     /* на узком телефоне текст кнопки делится на две ровные строки */
   }
   .button:focus-visible { outline: 3px solid var(--text); outline-offset: 3px; }
+  .button.secondary { margin-top: 10px; background: var(--soft); color: var(--accent); border: 1px solid var(--accent); }
   .hint { color: var(--muted); font-size: 0.9rem; margin: 10px 0 0; }
   ul, ol { margin: 0; padding: 0; list-style: none; }
   li { margin-bottom: 14px; }
@@ -100,6 +101,8 @@
       </div>
       <a class="button" href="https://t.me/PhysicsTutorEGE_bot?start=L06_op">Оставить заявку на ранний доступ</a>
       <p class="hint">Откроется Telegram. Нажмите «Старт», и заявка придёт мне.</p>
+      <a class="button secondary" href="https://t.me/PhysicsTutorEGE_bot?start=T06_op">Попробовать сейчас</a>
+      <p class="hint">Откроется Telegram с коротким демо этой версии.</p>
     </div>
   </header>
 
@@ -148,6 +151,8 @@
       <p>Заявка - это не оплата и не договор. Она ни к чему вас не обязывает.</p>
       <a class="button" href="https://t.me/PhysicsTutorEGE_bot?start=L06_op">Оставить заявку на ранний доступ</a>
       <p class="hint">Откроется Telegram. Нажмите «Старт», и заявка придёт мне.</p>
+      <a class="button secondary" href="https://t.me/PhysicsTutorEGE_bot?start=T06_op">Попробовать сейчас</a>
+      <p class="hint">Откроется Telegram с коротким демо этой версии.</p>
     </div>
   </section>
 
@@ -159,7 +164,7 @@
   </section>
 
   <footer>
-    <p class="small">Что сохраняется при заявке: ваш Telegram id, имя в Telegram и @имя пользователя, если оно есть, метка страницы и источника, с которых вы пришли, и время заявки. Данные ребёнка на этом шаге не нужны. Удалить заявку можно одной командой в боте.</p>
+    <p class="small">Что сохраняется при заявке: ваш Telegram id, имя в Telegram и @имя пользователя, если оно есть, метка страницы и источника, с которых вы пришли, и время заявки. В режиме «Попробовать сейчас» сохраняется только общий счётчик метки; текст и фото решения в боте не сохраняются. Данные ребёнка на этом шаге не нужны. Удалить заявку можно одной командой в боте.</p>
   </footer>
 
 </main>
