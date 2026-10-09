@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>План по физике: что решить и к какому сроку</title>
+<meta name="description" content="В раннем доступе у ребёнка будет план заданий по физике со сроками сдачи.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="План по физике: что решить и к какому сроку">
+<meta property="og:description" content="В раннем доступе у ребёнка будет план заданий по физике со сроками сдачи.">
+<script>
+  // Одна ссылка на всех: случайно открываем одну из страниц сегмента (они отличаются
+  // только ценой) и запоминаем выбор в браузере, чтобы при повторном заходе человек
+  // увидел ту же цену. Наружу ничего не отправляется.
+  (function () {
+    var ids = ["L05", "L06", "L07", "L08", "L09", "L10"];
+    var key = "price_egevalue";
+    var id = null;
+    try { id = localStorage.getItem(key); } catch (e) {}
+    if (ids.indexOf(id) === -1) {
+      id = ids[Math.floor(Math.random() * ids.length)];
+      try { localStorage.setItem(key, id); } catch (e) {}
+    }
+    location.replace(id + "_sp.html");
+  })();
+</script>
+</head>
+<body>
+<noscript><p><a href="L05_sp.html">Открыть страницу</a></p></noscript>
+</body>
+</html>

@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Страницы с разными ценами не должны попадать в поиск -->
+<meta name="robots" content="noindex, nofollow">
+<title>Чтобы домашняя работа по физике делалась, а вы видели результат</title>
+<meta name="description" content="Платформа-куратор по физике для 8-9 класса. Она даёт задания со сроками, напоминает о них, разбирает решения с помощью ИИ и раз в неделю присылает вам отчёт. В раннем доступе каждую проверку смотрит преподаватель.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Чтобы домашняя работа по физике делалась, а вы видели результат">
+<meta property="og:description" content="Платформа-куратор по физике для 8-9 класса. Она даёт задания со сроками, напоминает о них, разбирает решения с помощью ИИ и раз в неделю присылает вам отчёт. В раннем доступе каждую проверку смотрит преподаватель.">
+<style>
+  :root {
+    --bg: #faf9f6;
+    --card: #ffffff;
+    --text: #1d1c1a;
+    --muted: #5f5b55;
+    --line: #e6e2da;
+    --accent: #1b4fb5;
+    --accent-text: #ffffff;
+    --soft: #eef3fc;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #151618;
+      --card: #1e2023;
+      --text: #ecebe8;
+      --muted: #a5a29c;
+      --line: #303338;
+      --accent: #7aa5f5;
+      --accent-text: #10182a;
+      --soft: #1c2536;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 17px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  main { max-width: 40rem; margin: 0 auto; padding: 28px 18px 40px; }
+  h1 { font-size: clamp(1.6rem, 6.2vw, 2.15rem); line-height: 1.18; margin: 0 0 14px; letter-spacing: -0.01em; text-wrap: balance; }
+  h2 { font-size: 1.2rem; line-height: 1.3; margin: 0 0 12px; }
+  p { margin: 0 0 12px; }
+  .label { color: var(--muted); font-size: 0.9rem; margin-bottom: 10px; }
+  .lead { color: var(--muted); margin-bottom: 20px; }
+  section { margin-top: 34px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
+  .price-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin-bottom: 14px; }
+  .amount { font-size: 1.5rem; font-weight: 700; line-height: 1.2; }
+  .when { color: var(--muted); font-size: 0.95rem; }
+  .button {
+    display: block;
+    width: 100%;
+    padding: 15px 18px;
+    border-radius: 12px;
+    background: var(--accent);
+    color: var(--accent-text);
+    font-weight: 600;
+    font-size: 1rem;
+    line-height: 1.3;
+    text-align: center;
+    text-decoration: none;
+    text-wrap: balance;     /* на узком телефоне текст кнопки делится на две ровные строки */
+  }
+  .button:focus-visible { outline: 3px solid var(--text); outline-offset: 3px; }
+  .hint { color: var(--muted); font-size: 0.9rem; margin: 10px 0 0; }
+  ul, ol { margin: 0; padding: 0; list-style: none; }
+  li { margin-bottom: 14px; }
+  li:last-child { margin-bottom: 0; }
+  .steps { counter-reset: step; }
+  .steps li { counter-increment: step; position: relative; padding-left: 42px; }
+  .steps li::before {
+    content: counter(step);
+    position: absolute; left: 0; top: 0;
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--soft); color: var(--accent);
+    font-weight: 700; font-size: 0.95rem; line-height: 28px; text-align: center;
+  }
+  .plain li { padding-left: 18px; position: relative; }
+  .plain li::before { content: ""; position: absolute; left: 0; top: 0.62em; width: 7px; height: 7px; border-radius: 50%; background: var(--line); }
+  footer { margin-top: 38px; padding-top: 20px; border-top: 1px solid var(--line); }
+  .small { color: var(--muted); font-size: 0.85rem; }
+</style>
+</head>
+<body>
+<main>
+
+  <header>
+    <p class="label">Физика, 8‑9 класс</p>
+    <h1>Чтобы домашняя работа по физике делалась, а вы видели результат</h1>
+    <p class="lead">Платформа-куратор по физике для 8‑9 класса. Она даёт задания со сроками, напоминает о них, разбирает решения с помощью ИИ и раз в неделю присылает вам отчёт. В раннем доступе каждую проверку смотрит преподаватель.</p>
+    <div class="card">
+      <div class="price-row">
+        <span class="amount">4&nbsp;000&nbsp;₽&nbsp;в&nbsp;месяц</span>
+        <span class="when">Ранний доступ откроется в декабре 2026. Я напишу вам лично.</span>
+      </div>
+      <a class="button" href="https://t.me/PhysicsTutorEGE_bot?start=L04_tg">Оставить заявку на ранний доступ</a>
+      <p class="hint">Откроется Telegram. Нажмите «Старт», и заявка придёт мне.</p>
+    </div>
+  </header>
+
+  <section>
+    <h2>Что вы получаете</h2>
+    <ul>
+      <li><strong>Задания со сроками.</strong> У ребёнка всегда есть план: что решить и к какому дню.</li>
+      <li><strong>Напоминания.</strong> Платформа пишет первой: пришло новое задание, срок завтра, три дня тишины.</li>
+      <li><strong>Разбор решений.</strong> Ребёнок присылает фото решения. ИИ проверяет ход решения и объясняет ошибку простыми словами.</li>
+      <li><strong>Отчёт вам раз в неделю.</strong> Что сдано, что нет, какие темы даются труднее и на что обратить внимание.</li>
+      <li><strong>Преподаватель рядом.</strong> В раннем доступе я смотрю каждую проверку, а не только спорные. Тревожные сигналы тоже приходят мне: ребёнок не сдаёт или стал ошибаться чаще.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Как это работает</h2>
+    <ol class="steps">
+      <li>Раз в неделю ребёнок получает задания и срок.</li>
+      <li>Платформа сама пишет ребёнку в Telegram: пришло новое задание, срок завтра, три дня без ответа. Устанавливать ничего не нужно.</li>
+      <li>Ребёнок фотографирует решение и получает разбор.</li>
+      <li>Раз в неделю вы получаете короткий отчёт.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Чего ждать не стоит</h2>
+    <ul class="plain">
+      <li>Это не замена учителю. Платформа помогает регулярно решать задачи дома.</li>
+      <li>Готовых решений она не раздаёт. Сначала подсказка к следующему шагу, полное решение - только после попытки ребёнка или после срока задания.</li>
+      <li>Экзаменационные баллы в 8‑9 классе платформа не выставляет: она разбирает решение по существу. В раннем доступе каждую проверку смотрю я.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Кому подойдёт</h2>
+    <p>Подойдёт, если домашняя работа по физике делается через раз. Задания на неделю подбираю я.</p>
+    <p>Не подойдёт, если вы ищете замену преподавателю.</p>
+  </section>
+
+  <section>
+    <h2>Цена и ранний доступ</h2>
+    <div class="card">
+      <p class="amount">4&nbsp;000&nbsp;₽&nbsp;в&nbsp;месяц</p>
+      <p>Это цена платформы. Занятия с репетитором в неё не входят. Сейчас платить ничего не нужно.</p>
+      <p>Ранний доступ откроется в декабре 2026. Я напишу вам лично.</p>
+      <p>Заявка - это не оплата и не договор. Она ни к чему вас не обязывает.</p>
+      <a class="button" href="https://t.me/PhysicsTutorEGE_bot?start=L04_tg">Оставить заявку на ранний доступ</a>
+      <p class="hint">Откроется Telegram. Нажмите «Старт», и заявка придёт мне.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Кто это делает</h2>
+      <p>Меня зовут Денис, я репетитор по физике, выпускник МФТИ. Веду занятия с 2022 года.</p>
+      <p>ЕГЭ-2026: 15 выпускников, средний 84, лучшие 100, 98, 98, 96, 94, 92.</p>
+      <p>Это результаты моих занятий, а не платформы. Платформа новая, и баллов я не обещаю.</p>
+  </section>
+
+  <footer>
+    <p class="small">Что сохраняется при заявке: ваш Telegram id, имя в Telegram и @имя пользователя, если оно есть, метка страницы и источника, с которых вы пришли, и время заявки. Данные ребёнка на этом шаге не нужны. Удалить заявку можно одной командой в боте.</p>
+  </footer>
+
+</main>
+</body>
+</html>

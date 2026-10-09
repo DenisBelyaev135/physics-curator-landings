@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Чтобы домашняя работа по физике делалась, а вы видели результат</title>
+<meta name="description" content="Платформа-куратор по физике для 8-9 класса. Она даёт задания со сроками, напоминает о них, разбирает решения с помощью ИИ и раз в неделю присылает вам отчёт. В раннем доступе каждую проверку смотрит преподаватель.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Чтобы домашняя работа по физике делалась, а вы видели результат">
+<meta property="og:description" content="Платформа-куратор по физике для 8-9 класса. Она даёт задания со сроками, напоминает о них, разбирает решения с помощью ИИ и раз в неделю присылает вам отчёт. В раннем доступе каждую проверку смотрит преподаватель.">
+<script>
+  // Одна ссылка на всех: случайно открываем одну из страниц сегмента (они отличаются
+  // только ценой) и запоминаем выбор в браузере, чтобы при повторном заходе человек
+  // увидел ту же цену. Наружу ничего не отправляется.
+  (function () {
+    var ids = ["L03", "L04"];
+    var key = "price_g89";
+    var id = null;
+    try { id = localStorage.getItem(key); } catch (e) {}
+    if (ids.indexOf(id) === -1) {
+      id = ids[Math.floor(Math.random() * ids.length)];
+      try { localStorage.setItem(key, id); } catch (e) {}
+    }
+    location.replace(id + "_tg.html");
+  })();
+</script>
+</head>
+<body>
+<noscript><p><a href="L03_tg.html">Открыть страницу</a></p></noscript>
+</body>
+</html>
