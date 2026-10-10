@@ -1,0 +1,1290 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Черновик платформы подготовки к ЕГЭ по физике с ИИ-помощником Искрой. Демо на выдуманных данных.">
+<title>Физика с Искрой</title>
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: тетрадь в клетку. Сверху роли и демо-часы; у ученика слева рабочий стол, справа живой чат с Искрой; у преподавателя пульт контроля; у родителя недельный отчёт */
+:root{
+  --paper:#f3f5fb; --surface:#ffffff; --surface-2:#f7f8fd; --ink:#17203a; --muted:#5b6582; --line:#dde3f0; --grid:rgba(36,70,200,.07);
+  --pen:#2446c8; --pen-soft:#e7ecfd; --on-pen:#ffffff;
+  --spark:#f2760f; --spark-2:#ffc23d; --spark-soft:#fff2e3; --spark-line:#f6cfa6;
+  --ok:#1d8656; --ok-soft:#e2f4eb; --warn:#a96400; --warn-soft:#fff2d4; --bad:#c23b3b; --bad-soft:#fde8e8;
+  --shadow:0 1px 2px rgba(23,32,58,.05),0 8px 24px rgba(23,32,58,.06);
+  --f-display:"Unbounded","Golos Text",system-ui,sans-serif;
+  --f-body:"Golos Text",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0e1322; --surface:#161d31; --surface-2:#1b233a; --ink:#e7ebf6; --muted:#9ba5c3; --line:#2a3350; --grid:rgba(138,162,255,.06);
+  --pen:#8aa2ff; --pen-soft:#212c52; --on-pen:#0e1322;
+  --spark:#ff9a3c; --spark-2:#ffcf5c; --spark-soft:#2b2016; --spark-line:#5a3f22;
+  --ok:#4cc38a; --ok-soft:#13301f; --warn:#e5a43a; --warn-soft:#33270f; --bad:#f07373; --bad-soft:#3a1a1d;
+  --shadow:0 1px 2px rgba(0,0,0,.35); color-scheme:dark }}
+:root[data-theme="dark"]{
+  --paper:#0e1322; --surface:#161d31; --surface-2:#1b233a; --ink:#e7ebf6; --muted:#9ba5c3; --line:#2a3350; --grid:rgba(138,162,255,.06);
+  --pen:#8aa2ff; --pen-soft:#212c52; --on-pen:#0e1322;
+  --spark:#ff9a3c; --spark-2:#ffcf5c; --spark-soft:#2b2016; --spark-line:#5a3f22;
+  --ok:#4cc38a; --ok-soft:#13301f; --warn:#e5a43a; --warn-soft:#33270f; --bad:#f07373; --bad-soft:#3a1a1d;
+  --shadow:0 1px 2px rgba(0,0,0,.35); color-scheme:dark }
+
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:22px 22px}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--pen);outline-offset:2px;border-radius:6px}
+h1,h2,h3{margin:0;text-wrap:balance}
+p{margin:0}
+
+/* top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--paper) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top-in{max-width:1220px;margin:0 auto;padding:10px 16px;display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px}
+.brand{display:flex;align-items:center;gap:10px;margin-right:auto;min-width:0}
+.brand svg{width:34px;height:40px;flex:none}
+.brand b{font-family:var(--f-display);font-weight:700;font-size:17px;letter-spacing:-.01em}
+.brand small{display:block;color:var(--muted);font-size:12px;line-height:1.2}
+.roles{display:flex;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:3px;gap:2px}
+.roles button{border:0;background:none;padding:7px 12px;border-radius:9px;font-weight:600;font-size:14px;color:var(--muted)}
+.roles button[aria-pressed="true"]{background:var(--pen);color:var(--on-pen)}
+.clock{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px dashed var(--line);border-radius:12px;padding:5px 6px 5px 12px}
+.clock .t{font-family:var(--f-mono);font-size:13px;white-space:nowrap}
+.clock .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:7px 12px;font-weight:600;font-size:14px}
+.btn:hover{border-color:var(--pen)}
+.btn.pri{background:var(--pen);border-color:var(--pen);color:var(--on-pen)}
+.btn.spark{background:var(--spark);border-color:var(--spark);color:#1b1206}
+.btn.sm{padding:5px 10px;font-size:13px;border-radius:8px}
+.btn.ghost{background:transparent}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+.wrap{max-width:1220px;margin:0 auto;padding-inline:16px;padding-block:20px 48px}
+.demo-note{font-size:13px;color:var(--muted);margin-bottom:14px;display:flex;gap:8px;align-items:flex-start}
+.demo-note b{color:var(--ink);font-weight:600}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow);min-width:0}
+.card h2{font-family:var(--f-display);font-weight:500;font-size:16px;letter-spacing:-.01em}
+.card-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.eyebrow{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.muted{color:var(--muted)}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.stack{display:flex;flex-direction:column;gap:16px;min-width:0}
+
+/* student */
+.s-grid{display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:20px;align-items:start}
+@media (max-width:960px){.s-grid{grid-template-columns:minmax(0,1fr)}}
+
+.hero{display:grid;grid-template-columns:120px minmax(0,1fr);gap:18px;align-items:center;background:var(--spark-soft);border-color:var(--spark-line)}
+@media (max-width:560px){.hero{grid-template-columns:84px minmax(0,1fr);gap:12px}}
+.mascot svg{width:100%;height:auto;display:block}
+.bob svg{animation:bob 3.4s ease-in-out infinite;transform-origin:50% 90%}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-4px) rotate(-1.5deg)}}
+@media (prefers-reduced-motion:reduce){.bob svg{animation:none}}
+.hero h1{font-family:var(--f-display);font-weight:700;font-size:clamp(19px,2.6vw,25px);letter-spacing:-.02em;line-height:1.2}
+.hero .say{margin-top:8px;font-size:16px;max-width:60ch}
+.hero .note{margin-top:8px;font-size:13px;color:var(--muted)}
+.moods{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:14px;font-weight:500}
+.chip:hover{border-color:var(--spark)}
+.chip[aria-pressed="true"]{background:var(--spark);border-color:var(--spark);color:#1b1206}
+
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:560px){.stats{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.stat .v{font-family:var(--f-display);font-size:22px;font-weight:700;letter-spacing:-.02em}
+.stat .k{font-size:12.5px;color:var(--muted)}
+.flame{color:var(--spark)}
+
+.plan{display:flex;flex-direction:column}
+.row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.row:first-child{border-top:0;padding-top:0}
+.kind{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 10px;font-size:12.5px;font-weight:600;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.wait{background:var(--pen-soft);color:var(--pen)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill.todo{background:var(--surface-2);color:var(--muted);border:1px solid var(--line)}
+.dot{width:10px;height:10px;border-radius:50%;flex:none;display:inline-block}
+
+.task{display:grid;grid-template-columns:minmax(0,1fr) 230px;gap:18px}
+@media (max-width:700px){.task{grid-template-columns:minmax(0,1fr)}}
+.task .cond{font-size:15.5px;max-width:62ch}
+.fig{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:8px}
+.fig svg{width:100%;height:auto;display:block}
+.fig .ln{stroke:var(--ink);stroke-width:1.6;fill:none}
+.fig .slope{fill:var(--pen-soft);stroke:var(--ink);stroke-width:1.6}
+.fig .puck{fill:var(--spark);stroke:var(--ink);stroke-width:1.2}
+.fig .arr{stroke:var(--pen);stroke-width:2.2;fill:none}
+.fig .arrh{fill:var(--pen)}
+.fig text{fill:var(--ink);font-family:var(--f-mono);font-size:12px}
+.hints{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.hint{background:var(--spark-soft);border:1px solid var(--spark-line);border-radius:12px;padding:10px 12px;font-size:14.5px}
+.hint .n{font-weight:700;color:var(--spark);margin-right:6px}
+.sol{background:var(--ok-soft);border-radius:12px;padding:12px;font-size:14.5px}
+.locked{display:flex;gap:10px;align-items:center;font-size:13.5px;color:var(--muted);border:1px dashed var(--line);border-radius:12px;padding:10px 12px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.submit{margin-top:16px;border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:10px}
+textarea{width:100%;min-height:84px;resize:vertical;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--surface-2)}
+.file{display:inline-flex;align-items:center;gap:8px}
+.file input{position:absolute;width:1px;height:1px;opacity:0}
+.result{border-radius:12px;padding:12px 14px;border:1px solid var(--line);background:var(--surface-2);display:flex;flex-direction:column;gap:6px;font-size:14.5px}
+.result ul{margin:0;padding-left:18px}
+.score{font-family:var(--f-display);font-size:24px;font-weight:700}
+
+.kim{display:grid;grid-template-columns:repeat(13,minmax(0,1fr));gap:5px}
+@media (max-width:560px){.kim{grid-template-columns:repeat(7,minmax(0,1fr))}}
+.kim div{aspect-ratio:1;border-radius:7px;display:grid;place-items:center;font-family:var(--f-mono);font-size:12px;border:1px solid var(--line);max-width:100%}
+.kim .p2{border-color:var(--spark-line);border-style:dashed}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin-top:10px}
+.mods{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+.mod{display:grid;grid-template-columns:minmax(0,1fr) 120px 44px;gap:10px;align-items:center;font-size:14px}
+.bar{height:8px;border-radius:99px;background:var(--surface-2);border:1px solid var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--pen);border-radius:99px}
+
+.mem{display:flex;flex-direction:column;gap:8px}
+.mem-i{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:14px}
+.x{border:0;background:none;color:var(--muted);font-size:13px;text-decoration:underline;text-underline-offset:3px}
+
+/* chat */
+.chat{position:sticky;top:calc(env(safe-area-inset-top,0px) + 74px);display:flex;flex-direction:column;height:min(760px,calc(100dvh - 100px));padding:0;overflow:hidden}
+@media (max-width:960px){.chat{position:static;height:600px}}
+.chat-h{display:flex;gap:10px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line);background:var(--spark-soft)}
+.chat-h .mascot{width:44px;flex:none}
+.chat-h b{font-family:var(--f-display);font-weight:500;font-size:15px}
+.ai{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:var(--surface)}
+.m{max-width:86%;padding:9px 12px;border-radius:14px;white-space:pre-wrap;font-size:14.5px;line-height:1.45}
+.m.i{background:var(--spark-soft);border:1px solid var(--spark-line);border-bottom-left-radius:4px;align-self:flex-start}
+.m.u{background:var(--pen);color:var(--on-pen);border-bottom-right-radius:4px;align-self:flex-end}
+.m.sys{align-self:center;background:none;color:var(--muted);font-size:12.5px;text-align:center;max-width:95%;padding:2px 6px}
+.m .meta{display:block;font-size:11px;opacity:.7;margin-top:4px;font-family:var(--f-mono)}
+.m .tag{display:inline-block;font-size:11px;font-weight:700;color:var(--spark);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.quick{display:flex;gap:6px;overflow-x:auto;padding:8px 12px 0;border-top:1px solid var(--line)}
+.quick .chip{white-space:nowrap;font-size:13px;padding:5px 10px}
+.composer{display:flex;gap:8px;padding:10px 12px 12px}
+.composer input{flex:1;min-width:0;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--surface-2)}
+
+/* teacher */
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
+@media (max-width:760px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.t-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:960px){.t-grid{grid-template-columns:minmax(0,1fr)}}
+.sig{display:grid;grid-template-columns:4px minmax(0,1fr) auto;gap:12px;align-items:start;padding:12px 0;border-top:1px solid var(--line)}
+.sig:first-of-type{border-top:0}
+.sig .bar-s{align-self:stretch;border-radius:4px}
+.sig.done{opacity:.5}
+.q{border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.scores{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.scores button[data-s]{width:38px;height:34px;border-radius:9px;border:1px solid var(--line);background:var(--surface);font-family:var(--f-mono);font-weight:600}
+.scores button[data-s][aria-pressed="true"]{background:var(--pen);color:var(--on-pen);border-color:var(--pen)}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:540px}
+th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:left;font-weight:600;padding:0 8px 8px 0}
+td{padding:10px 8px 10px 0;border-top:1px solid var(--line);vertical-align:middle}
+.moodline{display:flex;gap:4px}
+.set{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line);font-size:14px}
+.set:first-of-type{border-top:0}
+.set small{display:block;color:var(--muted);font-size:12.5px}
+.sw{position:relative;width:42px;height:24px;flex:none}
+.sw input{opacity:0;width:100%;height:100%;margin:0;position:absolute;inset:0;cursor:pointer;z-index:1}
+.sw span{position:absolute;inset:0;border-radius:99px;background:var(--line);transition:background .15s}
+.sw span::after{content:"";position:absolute;width:18px;height:18px;border-radius:50%;background:var(--surface);top:3px;left:3px;transition:transform .15s;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+.sw input:checked+span{background:var(--pen)}
+.sw input:checked+span::after{transform:translateX(18px)}
+.sw input:focus-visible+span{outline:2px solid var(--pen);outline-offset:2px}
+
+/* parent */
+.report{max-width:760px;margin:0 auto}
+.report h1{font-family:var(--f-display);font-weight:700;font-size:clamp(20px,3vw,26px);letter-spacing:-.02em}
+.rep-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:16px 0}
+@media (max-width:560px){.rep-grid{grid-template-columns:minmax(0,1fr)}}
+.rep-sec{border-top:1px solid var(--line);padding-top:14px;margin-top:14px;display:flex;flex-direction:column;gap:6px}
+.rep-sec h3{font-size:15px;font-weight:700}
+.banner{display:flex;gap:10px;align-items:center;border-radius:12px;padding:10px 14px;font-size:14px;margin-top:12px}
+.banner.wait{background:var(--warn-soft);color:var(--warn)}
+.banner.ok{background:var(--ok-soft);color:var(--ok)}
+
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:12px;font-size:14px;z-index:50;max-width:calc(100% - 32px);box-shadow:var(--shadow)}
+.typing{display:inline-flex;gap:4px}
+.typing i{width:6px;height:6px;border-radius:50%;background:var(--spark);animation:blink 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes blink{0%,100%{opacity:.25}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.typing i{animation:none}}
+
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tabs button{border:0;background:none;padding:8px 12px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--spark)}
+.lessons{display:flex;flex-direction:column}
+.les{display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line);font-size:14.5px}
+.les:first-child{border-top:0}
+.les .st{width:16px;height:16px;border-radius:50%;border:2px solid var(--line)}
+.les .st.done{background:var(--ok);border-color:var(--ok)}
+.les .st.current{border-color:var(--spark);background:var(--spark-2)}
+.mod-c{border-top:1px solid var(--line);padding-top:12px;margin-top:12px}
+.mod-c:first-of-type{border-top:0;margin-top:0;padding-top:0}
+.mod-c h3{font-size:15px;font-weight:700;display:flex;justify-content:space-between;gap:10px;margin-bottom:4px}
+.theory{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:700px){.theory{grid-template-columns:minmax(0,1fr)}}
+.th{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:14px}
+.th b{display:block;margin-bottom:4px;font-size:14.5px}
+.qz{display:flex;flex-direction:column;gap:8px;padding:12px 0;border-top:1px solid var(--line)}
+.qz:first-child{border-top:0}
+.qz-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.qz input{width:120px;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--surface-2);font-family:var(--f-mono)}
+.qz input.ok{border-color:var(--ok)}
+.fb{font-size:13.5px}
+.fb.ok{color:var(--ok)}
+.fb.bad{color:var(--warn)}
+.tour{border-color:var(--pen);background:var(--pen-soft);margin-bottom:16px}
+.tour ol{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px}
+.tour li{display:grid;grid-template-columns:26px minmax(0,1fr) auto;gap:10px;align-items:center;font-size:14px}
+.tour .num{width:24px;height:24px;border-radius:50%;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center;font-family:var(--f-mono);font-size:12px;font-weight:600}
+.tour li.done .num{background:var(--ok);border-color:var(--ok);color:var(--surface)}
+.tour .say{display:block;color:var(--muted);font-size:13px}
+.m.t{background:var(--pen-soft);border:1px solid var(--pen);border-bottom-left-radius:4px;align-self:flex-start}
+.m.t .tag{color:var(--pen)}
+.linkbtn{border:0;background:none;padding:0;font-weight:700;color:var(--pen);text-decoration:underline;text-underline-offset:3px}
+.form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:560px){.form{grid-template-columns:minmax(0,1fr)}}
+.form label{display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--muted);min-width:0}
+.form input,.form select{border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--surface-2);color:var(--ink);font-size:14px;min-width:0}
+.form .full{grid-column:1/-1}
+.trend{display:flex;gap:6px;flex-wrap:wrap}
+.trend span{font-size:12px;border-radius:8px;padding:3px 8px;background:var(--surface-2);border:1px solid var(--line)}
+.m.p{background:var(--ok-soft);border:1px solid var(--ok);border-bottom-left-radius:4px;align-self:flex-start}
+.m.p .tag{color:var(--ok)}
+.tips{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px;font-size:14.5px}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.badge{border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13.5px;display:flex;flex-direction:column;gap:2px;background:var(--surface-2)}
+.badge b{font-size:14px}
+.badge.on{border-color:var(--spark-line);background:var(--spark-soft)}
+.badge.off{opacity:.55}
+.digest{white-space:pre-wrap;font-size:14.5px;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:12px}
+.honest{margin-top:24px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+@media (max-width:860px){.honest{grid-template-columns:minmax(0,1fr)}}
+.honest h3{font-size:15px;font-weight:700;margin-bottom:8px}
+.honest ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:14px}
+@media (max-width:560px){.demo-note{display:block}.stats .stat:last-child{grid-column:1/-1}}
+.fab{display:none}
+@media (max-width:700px){.top{position:static}.top-in{gap:8px}.chat{top:0}}
+@media (max-width:960px){.fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:6px;z-index:30;background:var(--spark);color:#1b1206;border:0;border-radius:999px;padding:5px 14px 5px 5px;font-weight:700;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+ .fab .mascot{width:32px}}
+</style>
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand">
+      <span id="brandMascot" aria-hidden="true"></span>
+      <div><b>Физика с Искрой</b><small>Подготовка к ЕГЭ · черновик платформы</small></div>
+    </div>
+    <div class="roles" role="group" aria-label="Чей экран показать">
+      <button id="r-student" data-role="student" aria-pressed="true">Ученик</button>
+      <button id="r-teacher" data-role="teacher" aria-pressed="false">Преподаватель</button>
+      <button id="r-parent" data-role="parent" aria-pressed="false">Родитель</button>
+    </div>
+    <button class="btn sm" id="tourBtn" aria-expanded="false">Как показать</button>
+    <div class="clock">
+      <div><div class="lbl">Демо-время</div><div class="t" id="clock"></div></div>
+      <button class="btn sm" id="nextDay" title="Промотать сутки: Искра сама напишет ученице">+1 день</button>
+      <button class="btn sm ghost" id="reset" title="Начать демо заново">Сброс</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <p class="demo-note"><span>Все ученики, оценки и переписка выдуманы.</span> <b id="aiNote">Подключаю ИИ…</b></p>
+  <div id="tour" hidden></div>
+
+  <section id="v-student">
+    <div class="s-grid">
+      <div class="stack" id="studentMain"></div>
+      <aside class="card chat" aria-label="Чат с Искрой">
+        <div class="chat-h">
+          <div class="mascot" id="chatMascot" aria-hidden="true"></div>
+          <div style="min-width:0">
+            <b>Искра</b>
+            <div class="ai"><span class="dot" id="aiDot" style="background:var(--warn)"></span><span id="aiState">подключение…</span></div>
+          </div>
+        </div>
+        <div class="msgs" id="msgs" aria-live="polite"></div>
+        <div class="quick" id="quick"></div>
+        <form class="composer" id="composer">
+          <input id="chatInput" autocomplete="off" placeholder="Напиши Искре…" aria-label="Сообщение Искре">
+          <button class="btn spark" id="sendBtn" type="submit">Отправить</button>
+        </form>
+      </aside>
+    </div>
+  </section>
+
+  <section id="v-teacher" hidden></section>
+  <section id="v-parent" hidden></section>
+
+  <section class="honest" aria-label="Что в демо настоящее">
+    <div class="card"><h3>Работает по-настоящему</h3><ul>
+      <li>В полной версии чат с Искрой и проверка решения по критериям ФИПИ идут через ИИ. На этой странице ответы заготовлены заранее.</li>
+      <li>Правила платформы: решение только после попытки, тихие часы, не больше одного сообщения первой в день, сигналы преподавателю вместо переписки.</li>
+      <li>Сравнение оценок ИИ и преподавателя по каждой подтверждённой проверке.</li>
+    </ul></div>
+    <div class="card"><h3>Пока демо</h3><ul>
+      <li>Ученики, оценки, настроение и история выдуманы.</li>
+      <li>Время ускоряется кнопкой «+1 день».</li>
+      <li>Сообщения не уходят в Telegram. В боте @PhysicsTutorEGE_bot уже работают пробы T01-T10 и проверка по фото.</li>
+      <li>Искра на этой странице отвечает заготовками, проверка идёт по упрощённым правилам.</li>
+    </ul></div>
+    <div class="card"><h3>Что нужно до пилота</h3><ul>
+      <li>Согласие законного представителя на обработку данных: ученики младше 18.</li>
+      <li>Сроки хранения и удаление фото и переписки.</li>
+      <li>Оплата от родителя.</li>
+      <li>Замер точности проверки на 150-200 работах, цель QWK не ниже 0,70.</li>
+    </ul></div>
+  </section>
+</main>
+<div class="toast" id="toast" hidden></div>
+<button class="fab" id="fab" hidden aria-label="Открыть чат с Искрой"><span class="mascot" id="fabMascot" aria-hidden="true"></span>Искра</button>
+
+<script>
+(function(){
+"use strict";
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let uid = 0;
+const reduceMotion = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ---------- Искра: маскот ---------- */
+function mascot(face){
+  const id = "sp" + (++uid);
+  const eyeOpen = (dy) => `<ellipse cx="48" cy="${80+dy}" rx="5.2" ry="7" fill="#1d1630"/><ellipse cx="72" cy="${80+dy}" rx="5.2" ry="7" fill="#1d1630"/><circle cx="50" cy="${77+dy}" r="1.9" fill="#fff"/><circle cx="74" cy="${77+dy}" r="1.9" fill="#fff"/>`;
+  const L = `stroke="#1d1630" stroke-width="3.2" stroke-linecap="round" fill="none"`;
+  const faces = {
+    happy:   eyeOpen(0) + `<path d="M50 97 Q60 107 70 97" ${L}/>`,
+    thinking:eyeOpen(-3) + `<path d="M53 101 Q60 98 67 101" ${L}/><circle cx="92" cy="40" r="3" fill="var(--spark-2)"/><circle cx="100" cy="30" r="4.5" fill="var(--spark-2)"/>`,
+    worried: eyeOpen(1) + `<path d="M40 71 L54 66" ${L}/><path d="M80 71 L66 66" ${L}/><path d="M51 104 Q60 96 69 104" ${L}/>`,
+    proud:   `<path d="M41 83 Q48 73 55 83" ${L}/><path d="M65 83 Q72 73 79 83" ${L}/><path d="M47 95 Q60 114 73 95 Z" fill="#1d1630"/><path d="M53 103 Q60 108 67 103" stroke="#ff7a7a" stroke-width="3" fill="none" stroke-linecap="round"/>`,
+    sleepy:  `<path d="M41 81 Q48 86 55 81" ${L}/><path d="M65 81 Q72 86 79 81" ${L}/><ellipse cx="60" cy="101" rx="4" ry="3.2" fill="#1d1630"/><text x="88" y="44" font-family="Unbounded,sans-serif" font-size="13" font-weight="700" fill="var(--pen)">z</text><text x="97" y="32" font-family="Unbounded,sans-serif" font-size="10" font-weight="700" fill="var(--pen)">z</text>`
+  };
+  const orbitPath = "M4 0 a56 15 0 1 0 112 0 a56 15 0 1 0 -112 0";
+  const motion = reduceMotion ? "" : `<animateMotion dur="4.5s" repeatCount="indefinite" path="${orbitPath}"/>`;
+  return `<svg viewBox="0 0 120 140" role="img" aria-label="Искра">
+    <defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--spark-2)"/><stop offset="1" style="stop-color:var(--spark)"/></linearGradient></defs>
+    <g transform="rotate(-16 60 90) translate(0 90)"><path d="${orbitPath}" fill="none" stroke="var(--pen)" stroke-width="1.6" opacity=".45"/></g>
+    <path d="M60 8 C66 22 72 26 80 36 C94 52 102 66 100 90 C98 117 80 131 60 131 C40 131 22 117 20 90 C18 64 30 50 42 38 C50 30 56 22 60 8 Z" fill="url(#${id})"/>
+    <ellipse cx="50" cy="56" rx="9" ry="14" fill="#fff" opacity=".28" transform="rotate(18 50 56)"/>
+    <circle cx="38" cy="94" r="5.5" fill="#ff6b6b" opacity=".28"/><circle cx="82" cy="94" r="5.5" fill="#ff6b6b" opacity=".28"/>
+    ${faces[face] || faces.happy}
+    <g transform="rotate(-16 60 90) translate(0 90)"><circle r="4.2" fill="var(--pen)">${motion}</circle></g>
+  </svg>`;
+}
+
+/* ---------- данные ---------- */
+const DAYS = ["Пн 12 окт","Вт 13 окт","Ср 14 окт","Чт 15 окт","Пт 16 окт","Сб 17 окт","Вс 18 окт","Пн 19 окт","Вт 20 окт","Ср 21 окт","Чт 22 окт","Пт 23 окт","Сб 24 окт","Вс 25 окт"];
+const DUE_T3 = 6;
+const MOODS = {
+  good:{label:"Бодро", face:"happy", min:25, color:"var(--ok)",
+        say:"Отлично. Тогда сегодня берём задачу про шайбу целиком: 25 минут, я рядом."},
+  ok:{label:"Нормально", face:"happy", min:20, color:"var(--pen)",
+        say:"Принято. Предлагаю 20 минут: рисунок сил и второй закон Ньютона. Дальше посмотрим по ходу."},
+  tired:{label:"Устала", face:"sleepy", min:10, color:"var(--warn)",
+        say:"Понимаю. Сегодня лёгкий режим: 10 минут, только рисунок сил. Серия всё равно засчитается."},
+  anx:{label:"Тревожно", face:"worried", min:15, color:"var(--bad)",
+        say:"Спасибо, что сказала. Перед ЕГЭ тревожно почти всем. Давай сегодня без нового: разберём одну вещь, которая пугает больше всего. Что это?"}
+};
+const TASK = "Шайбу толкнули вверх по наклонной плоскости с углом наклона 30° к горизонту, сообщив ей скорость 6 м/с. Коэффициент трения шайбы о плоскость 0,2. На какое расстояние вдоль плоскости поднимется шайба до остановки? Ответ округлите до десятых.";
+const HINTS = [
+  "Нарисуй шайбу и все силы: тяжести mg, реакции опоры N и трения. Куда направлено трение, если шайба едет вверх?",
+  "Трение направлено вниз вдоль плоскости, против движения. Запиши второй закон Ньютона в проекциях: вдоль плоскости ma = mg·sinα + μN, поперёк N = mg·cosα.",
+  "Получится a = g(sinα + μ·cosα). Шайба тормозит до остановки, время не нужно: подойдёт формула v₀² = 2as."
+];
+const EX_GOOD = "Ось x вдоль плоскости вверх, ось y перпендикулярно. Fтр - сила трения скольжения.\nНьютон: ma = mg·sin30° + Fтр, N = mg·cos30°, Fтр = μN.\na = g(sin30° + μ·cos30°) = 10·(0,5 + 0,2·0,87) = 6,73 м/с².\nv0² = 2as, s = v0²/(2a) = 36/13,46 = 2,7 м.\nОтвет: 2,7 м";
+const EX_BAD = "ma = mg·sin30° - μmg·cos30°\na = 10·(0,5 - 0,17) = 3,27 м/с²\ns = v0²/(2a) = 36/6,54 = 5,5 м";
+const SOLUTION = "Силы: mg, N, Fтр = μN (вниз вдоль плоскости).\nОсь вдоль плоскости: ma = mg·sinα + μN; поперёк: N = mg·cosα.\na = g(sinα + μ·cosα) = 10·(0,5 + 0,2·0,866) ≈ 6,73 м/с².\nДо остановки: v₀² = 2as, s = v₀²/(2a) = 36/13,46 ≈ 2,7 м.\nОтвет: 2,7 м.";
+const KIM = [78,85,70,62,55,80,74,66,58,72,60,48,52,64,45,57,40,35,68,50, 40,62,30,25,10,0];
+const MODULES = [["Механика",62],["Молекулярная физика и термодинамика",38],["Электродинамика",18],["Оптика",0],["Квантовая физика",0]];
+
+function initialState(){
+  return {
+    role:"student", day:3, time:"16:20",
+    mood:null, moodLog:["ok","good","tired"], streak:6, idle:0, activeToday:true, minutes:95,
+    face:"happy",
+    tasks:[
+      {id:"t1",kind:"Урок",title:"Силы на наклонной плоскости: конспект и 3 вопроса",due:1,status:"done",note:"3 из 3"},
+      {id:"t2",kind:"Тест",title:"8 задач части 1 по динамике",due:3,status:"done",note:"6 из 8"},
+      {id:"t3",kind:"Задача",title:"№22: шайба на наклонной плоскости",due:DUE_T3,status:"todo",note:""}
+    ],
+    hints:0, gaveUp:0, draft:"", fileName:"", sub:null,
+    flags:[
+      {id:"f1",student:"Вика",level:"high",text:"4 дня без активности. Искра написала дважды, ответа нет. Нужен личный контакт.",time:"сегодня 10:00",done:false},
+      {id:"f2",student:"Артём",level:"mid",text:"Трижды нажал «сдаюсь» на №23 (закон сохранения импульса). Похоже, пробел в теме, а не лень.",time:"вчера 19:40",done:false}
+    ],
+    queue:[
+      {id:"q1",student:"Артём",task:"№23: неупругий удар тележек",source:"фото",ai:1,summary:"Законы записаны верно, ответ верный, но не описаны введённые обозначения (критерий II).",missing:["II: не описаны v₁ и v₂"],sel:1}
+    ],
+    settings:{proactive:true, lock:true, quiet:true},
+    report:{approved:false},
+    memory:["Цель: 85+ баллов и поступление в МФТИ","Больше всего боится заданий 25 и 26","Удобнее заниматься после 17:00","Лучше понимает на примерах из спорта"],
+    sTab:"today", qa:{}, lessonDone:false, tourOpen:false, tourDone:{},
+    agree:{total:0, same:0, log:[]}, digest:{state:"idle", text:""}, everMood:false, subCount:0, maxStreak:6,
+    chat:[], turns:[], overdueFlagged:false, idleFlagged:false, anxFlagged:false, gaveUpFlagged:false
+  };
+}
+let S = initialState();
+
+/* ---------- ИИ через claude.use("sample") ---------- */
+let sample = null, aiReady = false;
+(async () => {
+  try { if (window.claude && window.claude.use) sample = await window.claude.use("sample"); } catch (e) { sample = null; }
+  aiReady = true; updateAI();
+})();
+function updateAI(){
+  const on = !!sample;
+  $("#aiDot").style.background = !aiReady ? "var(--warn)" : on ? "var(--ok)" : "var(--muted)";
+  $("#aiState").textContent = !aiReady ? "подключение…" : on ? "отвечает ИИ · обычно за пару секунд" : "демо-ответы без ИИ";
+  $("#aiNote").textContent = !aiReady ? "Подключаю ИИ…" : on ? "Искра отвечает через настоящий ИИ и проверяет решения по критериям ФИПИ (при первом вопросе Claude попросит разрешение)." : "Это демо-версия: Искра отвечает заготовленными ответами, проверка решений упрощённая. Версия с живым ИИ работает внутри Claude.";
+}
+function dropAI(e){
+  if (e && ["not_granted","sampling_disabled","not_declared","capability_disabled","capability_removed"].includes(e.code)) { sample = null; updateAI(); }
+}
+
+/* ---------- утилиты ---------- */
+function toast(t){ const el = $("#toast"); el.textContent = t; el.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(() => el.hidden = true, 3400); }
+function markActive(){ if (!S.activeToday){ S.activeToday = true; S.minutes += 20; S.idle = 0; } }
+function solutionOpen(){ return !S.settings.lock || !!S.sub || S.day > DUE_T3; }
+function dueLabel(d){ const diff = d - S.day; if (diff < 0) return "срок прошёл"; if (diff === 0) return "сегодня до 23:59"; if (diff === 1) return "завтра"; return "до " + DAYS[d].replace(/^\S+ /,"") ; }
+function sendTime(){ if (!S.settings.quiet) return "22:40"; const t = S.introAns && S.introAns.time; if (t === "Сразу после школы") return "15:30"; if (t) return "19:00"; return "10:00"; }
+
+/* ---------- чат ---------- */
+const msgsEl = $("#msgs");
+function addMsg(from, text, opts = {}){
+  const m = {from, text, time: opts.time || S.time, tag: opts.tag || ""};
+  S.chat.push(m);
+  if (from === "i") S.turns.push({role:"assistant", content:text});
+  if (from === "u") S.turns.push({role:"user", content:text});
+  drawMsg(m);
+}
+function drawMsg(m){
+  const d = document.createElement("div");
+  d.className = "m " + (m.from === "i" ? "i" : m.from === "u" ? "u" : m.from === "t" ? "t" : m.from === "p" ? "p" : "sys");
+  if (m.tag){ const t = document.createElement("span"); t.className = "tag"; t.textContent = m.tag; d.appendChild(t); d.appendChild(document.createElement("br")); }
+  d.appendChild(document.createTextNode(m.text));
+  if (m.from !== "sys"){ const meta = document.createElement("span"); meta.className = "meta"; meta.textContent = DAYS[S.day].split(" ")[0] + " " + m.time; d.appendChild(meta); }
+  msgsEl.appendChild(d); msgsEl.scrollTop = msgsEl.scrollHeight;
+  return d;
+}
+function redrawChat(){ msgsEl.innerHTML = ""; S.chat.forEach(drawMsg); }
+function setFace(f){ S.face = f; $("#chatMascot").innerHTML = mascot(f); const h = document.getElementById("heroMascot"); if (h) h.innerHTML = mascot(f); }
+
+const QUICK = ["Не понимаю, с чего начать","Почему трение вниз?","Мне тревожно перед ЕГЭ","Объясни проще"];
+function drawQuick(){ $("#quick").innerHTML = QUICK.map(q => `<button class="chip" type="button" data-q="${esc(q)}">${esc(q)}</button>`).join(""); }
+
+const ALARM = /(брош|не могу больше|ненавиж|паник|плач|тупая|тупой|не сдам|бесполезн|ничего не получ|хочу всё бросить|сил нет|достало)/i;
+
+function rules(){
+  const mood = S.mood ? MOODS[S.mood].label.toLowerCase() : "не отмечено";
+  return `Ты Искра, ИИ-репетитор и маскот платформы подготовки к ЕГЭ по физике. Ты общаешься с ученицей 11 класса Машей (выдуманный демо-профиль) на «ты», тепло и по-дружески, без сюсюканья.
+Что ты знаешь о Маше: ${S.memory.join("; ") || "ничего"}. Настроение сегодня: ${mood}. Серия занятий: ${S.streak} дн. Последний тест по динамике: 6 из 8, обе ошибки в проекции силы трения.${S.lastTeacher ? " Преподаватель Денис недавно написал ей в этот чат: «" + S.lastTeacher + "». Учитывай это." : ""}${S.lastParent ? " Мама прислала ей через платформу: «" + S.lastParent + "»." : ""}${S.tasks.length > 3 ? " В плане также: " + S.tasks.slice(3).map(t => t.title).join("; ") + "." : ""}
+Задача недели (№22 ЕГЭ, 2 балла): ${TASK}
+Подсказок уже открыто: ${S.hints} из 3. Попытка решения ${S.sub ? "отправлена" : "ещё не отправлена"}. Полное решение ${solutionOpen() ? "можно показать, если она просит" : "показывать НЕЛЬЗЯ: только один следующий шаг или наводящий вопрос"}.
+Правила:
+1. Отвечай коротко: 1-4 предложения. Один вопрос за раз.
+2. Не решай за ученицу. Веди вопросами, давай один следующий шаг.
+3. Только школьная физика по кодификатору ЕГЭ, g = 10 м/с².
+4. Хвали за конкретное действие, а не общим «молодец».
+5. Если она устала, тревожится или злится, сначала одной фразой поддержи и назови чувство, потом предложи маленький шаг на 5-10 минут.
+6. Никогда не обещай баллы на ЕГЭ и не пугай экзаменом.
+7. Не используй длинное тире, эмодзи и markdown. Пиши простым языком, формулы обычным текстом.
+8. Если вопрос не про учёбу, ответь по-человечески одной фразой и мягко верни к занятию.
+Ответь только репликой Искры.`;
+}
+
+function fallbackReply(t){
+  const s = t.toLowerCase().replace(/,/g, ".");
+  const nums = (s.match(/\d+(?:\.\d+)?/g) || []).map(Number);
+  const has = (lo, hi) => nums.some(n => n >= lo && n <= hi);
+  const nextHint = HINTS[Math.min(S.hints, HINTS.length - 1)];
+  if (/(дай|скажи|покажи|напиши).*(ответ|решени)|реши за|просто ответ/.test(s)) return solutionOpen()
+    ? "Решение уже открыто под задачей. Прочитай его, потом закрой и попробуй записать сама: так оно запомнится."
+    : "Готовый ответ не дам: на ЕГЭ его тоже никто не подскажет. А шаг подскажу. " + nextHint;
+  if (/трев|страш|боюсь|паник|не сдам/.test(s)) return "Слышу, что тревожно. Это нормально, особенно в 11 классе. Давай сделаем одно маленькое дело на 7 минут: нарисуем силы в задаче про шайбу. Потом скажешь, стало ли спокойнее.";
+  if (/устал|не хочу|лень|скучно|надоел/.test(s)) return "Понимаю. Давай договоримся на 5 минут: только рисунок сил. Если потом захочешь остановиться, остановимся, серия всё равно засчитается.";
+  if (has(2.65, 2.75)) return "Сходится: 2,7 м. Теперь оформи решение по критериям: законы, обозначения, расчёт, ответ с единицами. И отправь на проверку, преподаватель подтвердит балл.";
+  if (has(6.6, 6.8)) return "Ускорение верное, около 6,73 м/с². Осталось расстояние. Время нам не дано и не нужно: какая формула связывает скорость, ускорение и путь?";
+  if (has(3.55, 3.65)) return "Похоже, ты не учла трение: без него вышло бы 3,6 м. Трение тоже тормозит шайбу, добавь в ускорение слагаемое μg·cosα.";
+  if (has(5.4, 5.6) || has(3.2, 3.3)) return "Знак трения перепутан. Шайба едет вверх, значит трение направлено вниз, как и mg·sinα. Эти силы складываются, а не вычитаются.";
+  if (has(2.5, 2.6) || (has(7, 7) && !has(6.6, 6.8))) return "Близко. Проверь силу реакции опоры: на наклонной N = mg·cosα, а не mg. Отсюда и сила трения μmg·cosα.";
+  if (has(5, 5) && /a\s*=|ускорен/.test(s)) return "a = 5 м/с² было бы без трения. А шайбу тормозит ещё и трение. Каким будет ускорение с ним?";
+  if (/^(привет|здравств|добр)/.test(s.trim())) return "Привет! Я рядом. С чего начнём: задача про шайбу или вопрос по теории?";
+  if (/кто ты|ты кто|ты бот|ты ии|нейросет/.test(s)) return "Я Искра, ИИ-помощник на платформе. Задачи за тебя не решаю, но веду по шагам. Оценки ставит преподаватель, я только помогаю и подсказываю.";
+  if (/спасиб/.test(s)) return "Пожалуйста! Ты сделала больше, чем кажется. Что дальше: оформляем решение?";
+  if (/импульс|№ ?23/.test(s)) return "До импульса дойдём в следующем уроке, преподаватель уже поставил его в план. Сейчас добьём шайбу, хорошо?";
+  if (/трени|трение/.test(s)) return "Трение всегда мешает движению. Шайба едет вверх, значит трение тянет её вниз вдоль плоскости. Как тогда запишешь проекцию сил на ось вдоль плоскости?";
+  if (/сил|рисун|реакц|опор/.test(s)) return "Да: mg, N и трение. Трение против движения, то есть вниз вдоль плоскости. Теперь запиши второй закон Ньютона в проекции на ось вдоль плоскости.";
+  if (/начать|не понимаю|не знаю|не получается/.test(s)) return "Начнём с рисунка. Какие силы действуют на шайбу, пока она едет вверх? Назови хотя бы две.";
+  if (/проще|объясни/.test(s)) return "Представь, что катишь мяч в горку. Его тормозят сразу две вещи: часть силы тяжести вдоль склона и трение. Обе тянут вниз. Попробуй записать каждую формулой.";
+  if (/mg|ma|ньютон|sin|cos/.test(s)) return "Хорошо, что начала с закона Ньютона. Проверь знаки: обе силы, тормозящие шайбу, направлены в одну сторону. Что получится для ускорения?";
+  if (nums.length) return "Получилось " + String(nums[nums.length - 1]).replace(".", ",") + "? Давай сверим по шагам: какое у тебя вышло ускорение?";
+  return "Поняла тебя. Давай по шагам: что уже записала в решении? Пришли строчку, и я подскажу следующий шаг.";
+}
+
+let busy = false;
+async function ask(text){
+  if (busy || !text.trim()) return;
+  busy = true; $("#sendBtn").disabled = true;
+  addMsg("u", text.trim()); markActive();
+  if (ALARM.test(text)){
+    if (!S.anxFlagged){
+      S.flags.unshift({id:"f"+Date.now(),student:"Маша",level:"high",text:"В чате с Искрой написала о сильной усталости или желании бросить. Переписка преподавателю не показывается, только сигнал.",time:DAYS[S.day].split(" ")[0]+" "+S.time,done:false});
+      S.anxFlagged = true;
+    }
+    addMsg("sys","Искра отметила для преподавателя: «ученице тяжело». Текст переписки он не видит.");
+  }
+  setFace("thinking");
+  const bubble = document.createElement("div"); bubble.className = "m i"; bubble.innerHTML = '<span class="typing"><i></i><i></i><i></i></span>';
+  msgsEl.appendChild(bubble); msgsEl.scrollTop = msgsEl.scrollHeight;
+  let answer = "";
+  if (sample){
+    try{
+      const input = [{role:"user",content:rules()}, ...S.turns.slice(-14)];
+      const res = await sample(input, {cache:false, modelTier:"quick", onText:({text}) => { bubble.textContent = text; msgsEl.scrollTop = msgsEl.scrollHeight; }});
+      answer = res.text.trim();
+    }catch(e){ dropAI(e); answer = (e && e.text) ? e.text : fallbackReply(text); }
+  } else {
+    await new Promise(r => setTimeout(r, 650));
+    answer = fallbackReply(text);
+  }
+  bubble.remove();
+  addMsg("i", answer);
+  setFace(ALARM.test(text) || /трев|страш|боюсь/i.test(text) ? "worried" : "happy");
+  busy = false; $("#sendBtn").disabled = false;
+  renderStudent(); renderTeacherIfOpen();
+}
+
+/* ---------- экран ученика ---------- */
+function statusPill(t){
+  if (t.status === "done") return `<span class="pill ok">Готово${t.note ? " · " + esc(t.note) : ""}</span>`;
+  if (t.status === "checking") return `<span class="pill wait">Ждёт преподавателя</span>`;
+  if (S.day > t.due) return `<span class="pill bad">Просрочено</span>`;
+  if (t.due - S.day <= 1) return `<span class="pill warn">${esc(dueLabel(t.due))}</span>`;
+  return `<span class="pill todo">${esc(dueLabel(t.due))}</span>`;
+}
+function kimCell(n, v){
+  const txt = v > 55 ? "var(--on-pen)" : "var(--ink)";
+  return `<div class="${n>20?"p2":""}" style="background:color-mix(in srgb,var(--pen) ${v}%,var(--surface));color:${txt}" title="Задание ${n}: ${v}%">${n}</div>`;
+}
+function figure(){
+  return `<svg viewBox="0 0 260 130" role="img" aria-label="Шайба на наклонной плоскости под углом 30 градусов">
+    <line x1="20" y1="116" x2="245" y2="116" class="ln"/>
+    <polygon points="40,116 222,116 222,11" class="slope"/>
+    <path d="M70 116 A30 30 0 0 0 66 101" class="ln"/>
+    <text x="74" y="110">30°</text>
+    <g transform="translate(118 72) rotate(-30)"><rect x="-12" y="-12" width="24" height="12" rx="3" class="puck"/></g>
+    <line x1="132" y1="54" x2="166" y2="34.5" class="arr"/>
+    <polygon points="172,31 160,32 165,40" class="arrh"/>
+    <text x="150" y="28">v₀ = 6 м/с</text>
+    <text x="150" y="108">μ = 0,2</text>
+  </svg>`;
+}
+function renderStudent(){
+  if (S.sTab === "course"){ $("#studentMain").innerHTML = tabsHtml() + courseHtml(); return; }
+  const m = S.mood ? MOODS[S.mood] : null;
+  const t3 = S.tasks.find(t => t.id === "t3");
+  const doneCnt = S.tasks.filter(t => t.status === "done").length;
+  const heroSay = m ? m.say : (S.heroSay || "Тест по динамике: 6 из 8, и обе ошибки в одном месте, в проекции силы трения. Сегодня как раз задача про это. Как ты?");
+  let html = tabsHtml();
+  if (S.intro != null) html += introHtml(); else html += `<div class="card hero">
+    <div class="mascot bob" id="heroMascot">${mascot(S.face)}</div>
+    <div style="min-width:0">
+      <div class="eyebrow">${esc(DAYS[S.day])} · ${esc(S.time)}</div>
+      <h1>${m ? "Сегодня " + m.min + " минут, и этого хватит" : "Привет, Маша!"}</h1>
+      <p class="say">${esc(heroSay)}</p>
+      <div class="moods" role="group" aria-label="Как настроение">
+        ${Object.entries(MOODS).map(([k,v]) => `<button class="chip" data-mood="${k}" aria-pressed="${S.mood===k}">${v.label}</button>`).join("")}
+      </div>
+      ${S.mood === "anx" ? `<p class="note">Преподаватель увидит только отметку «тревожно», без нашей переписки.</p>` : ""}
+    </div>
+  </div>`;
+  html += `<div class="stats">
+    <div class="stat"><div class="v"><span class="flame">${S.streak}</span> ${plural(S.streak,"день","дня","дней")}</div><div class="k">серия занятий подряд</div></div>
+    <div class="stat"><div class="v">${doneCnt} из ${S.tasks.length}</div><div class="k">план недели</div></div>
+    <div class="stat"><div class="v">${Math.max(0, 33 - (S.day - 3))} ${plural(Math.max(0,33-(S.day-3)),"день","дня","дней")}</div><div class="k">до пробника на платформе, 17 ноября</div></div>
+  </div>`;
+  html += `<div class="card"><div class="card-h"><h2>План недели</h2><span class="muted" style="font-size:13px">ставит преподаватель, Искра напоминает</span></div><div class="plan">
+    ${S.tasks.map(t => `<div class="row"><span class="kind">${esc(t.kind)}</span><span style="min-width:0">${esc(t.title)}</span>${statusPill(t)}</div>`).join("")}
+  </div></div>`;
+  // task
+  const hintsHtml = HINTS.slice(0, S.hints).map((h,i) => `<div class="hint"><span class="n">${i+1}</span>${esc(h)}</div>`).join("");
+  const open = solutionOpen();
+  let resultHtml = "";
+  if (S.sub){
+    const a = S.sub.ai;
+    if (S.sub.state === "checking") resultHtml = `<div class="result"><span class="typing"><i></i><i></i><i></i></span> Искра проверяет по критериям ФИПИ…</div>`;
+    else if (a){
+      const fin = S.sub.final;
+      resultHtml = `<div class="result">
+        <div style="display:flex;gap:12px;align-items:baseline;flex-wrap:wrap"><span class="score mono">${fin != null ? fin : (a.score != null ? a.score : "?")} / 2</span>
+        ${fin != null ? `<span class="pill ok">Подтверждено преподавателем</span>` : `<span class="pill wait">Предварительно, ждёт преподавателя</span>`}</div>
+        ${a.next ? `<p>${esc(a.next)}</p>` : ""}
+        ${a.missing && a.missing.length ? `<div class="muted" style="font-size:13.5px">Чего не хватило:</div><ul>${a.missing.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}
+        ${a.unclear ? `<p class="muted" style="font-size:13.5px">Часть фото не читается, преподаватель посмотрит сам.</p>` : ""}
+      </div>`;
+    }
+  }
+  html += `<div class="card"><div class="card-h"><h2>Задача недели</h2>${statusPill(t3)}</div>
+    <div class="task">
+      <div style="min-width:0">
+        <div class="eyebrow" style="margin-bottom:6px">Задание 22 · расчётная · до 2 баллов</div>
+        <p class="cond">${esc(TASK)}</p>
+        <div class="actions">
+          <button class="btn" data-act="hint" ${S.hints >= 3 ? "disabled" : ""}>${S.hints >= 3 ? "Все подсказки открыты" : "Подсказка " + (S.hints+1) + " из 3"}</button>
+          <button class="btn ghost" data-act="giveup">Сдаюсь</button>
+        </div>
+        <div class="hints">${hintsHtml}
+          ${open && (S.sub || S.gaveUp || S.day > DUE_T3) ? `<div class="sol"><b>Решение</b><br><span style="white-space:pre-wrap">${esc(SOLUTION)}</span></div>`
+            : (!open && S.gaveUp ? `<div class="locked">Полное решение откроется после твоей попытки или после срока. Так договорились с преподавателем.</div>` : "")}
+        </div>
+      </div>
+      <div class="fig">${figure()}</div>
+    </div>
+    <div class="submit">
+      <label for="draft" class="eyebrow">Твоё решение</label>
+      <textarea id="draft" placeholder="Напиши ход решения или прикрепи фото тетради">${esc(S.draft)}</textarea>
+      <div class="actions" style="margin-top:0;align-items:center">
+        <button class="btn sm ghost" data-example="good" type="button">Пример: верное</button><button class="btn sm ghost" data-example="bad" type="button">Пример: с ошибкой</button>
+        <label class="btn file" for="photo">Прикрепить фото<input type="file" id="photo" accept="image/jpeg,image/png,image/webp"></label>
+        <span class="muted" style="font-size:13px" id="fileName">${S.fileName ? esc(S.fileName) : "фото не выбрано"}</span>
+        <button class="btn pri" data-act="submit" ${S.sub && S.sub.state === "checking" ? "disabled" : ""}>${S.sub ? "Отправить ещё раз" : "Отправить на проверку"}</button>
+      </div>
+      ${resultHtml}
+    </div>
+  </div>`;
+  // map
+  html += `<div class="card"><div class="card-h"><h2>Карта подготовки</h2><span class="muted" style="font-size:13px">доля верных решений по номерам КИМ</span></div>
+    <div class="kim">${KIM.map((v,i) => kimCell(i+1, v)).join("")}</div>
+    <div class="legend"><span>1–20: часть 1</span><span>21–26: часть 2, развёрнутый ответ (пунктир)</span><span>чем темнее, тем увереннее</span></div>
+    <div class="mods">${MODULES.map(([n,v]) => `<div class="mod"><span style="min-width:0">${esc(n)}</span><span class="bar"><i style="width:${v}%"></i></span><span class="mono muted" style="text-align:right">${v}%</span></div>`).join("")}</div>
+  </div>`;
+  // memory
+  html += badgesHtml();
+  html += `<div class="card"><div class="card-h"><h2>Что Искра о тебе помнит</h2><span class="muted" style="font-size:13px">можно убрать лишнее</span></div>
+    <div class="mem">${S.memory.length ? S.memory.map((x,i) => `<div class="mem-i"><span>${esc(x)}</span><button class="x" data-forget="${i}">забыть</button></div>`).join("") : `<p class="muted">Искра пока ничего не помнит. Расскажи о цели в чате.</p>`}</div>
+    <div class="actions"><button class="btn sm" data-act="intro">Пройти знакомство заново</button></div>
+  </div>`;
+  const keepFocus = document.activeElement && document.activeElement.id === "draft";
+  $("#studentMain").innerHTML = html;
+  if (keepFocus){ const d = $("#draft"); d.focus(); d.selectionStart = d.selectionEnd = d.value.length; }
+}
+function plural(n,a,b,c){ n = Math.abs(n) % 100; const n1 = n % 10; if (n > 10 && n < 20) return c; if (n1 > 1 && n1 < 5) return b; if (n1 === 1) return a; return c; }
+
+
+/* ---------- курс ---------- */
+const COURSE = [
+  {name:"Механика", lessons:["Кинематика: равноускоренное движение","Законы Ньютона","Силы на наклонной плоскости","Импульс и закон сохранения","Работа и энергия","Статика и гидростатика"], done:2},
+  {name:"Молекулярная физика и термодинамика", lessons:["Уравнение Менделеева-Клапейрона","Первый закон термодинамики","Тепловые машины и КПД","Влажность и насыщенный пар"], done:2},
+  {name:"Электродинамика", lessons:["Электрическое поле","Законы постоянного тока","Магнитное поле и индукция","Колебания и волны"], done:1},
+  {name:"Оптика", lessons:["Отражение и преломление","Линзы"], done:0},
+  {name:"Квантовая физика", lessons:["Фотоэффект","Ядро и радиоактивность"], done:0}
+];
+const THEORY = [
+  ["Разложи силу тяжести","Вдоль плоскости действует mg·sinα, поперёк mg·cosα. Ось x удобно направить вдоль плоскости."],
+  ["Реакция опоры","Если поперёк плоскости ускорения нет, N = mg·cosα. Частая ошибка ЕГЭ: писать N = mg."],
+  ["Трение","Скольжения: Fтр = μN, против скорости. Покоя: ровно столько, сколько нужно для равновесия, но не больше μN."]
+];
+const QUIZ = [
+  {id:"q1", text:"Брусок массой 2 кг покоится на наклонной плоскости с углом 30°. Чему равна сила трения покоя? Ответ в ньютонах.", ans:10, tol:0.05,
+   ok:"Верно: брусок в равновесии, Fтр = mg·sin30° = 10 Н. Формула μN здесь не нужна.", hint:"Брусок покоится, значит силы вдоль плоскости уравновешены. Что уравновешивает трение?"},
+  {id:"q2", text:"Шайба соскальзывает с гладкой наклонной плоскости с углом 30°. Чему равно её ускорение? Ответ в м/с².", ans:5, tol:0.05,
+   ok:"Верно: a = g·sin30° = 5 м/с². Масса сократилась.", hint:"Трения нет. Вдоль плоскости остаётся только одна сила. Раздели её на массу."},
+  {id:"q3", text:"Чему равна сила реакции опоры для бруска массой 2 кг на плоскости с углом 30°? Ответ округлите до целых, в ньютонах.", ans:17, tol:0.5,
+   ok:"Верно: N = mg·cos30° ≈ 17 Н. Меньше mg, как и должно быть.", hint:"Реакция опоры уравновешивает только составляющую mg поперёк плоскости. cos30° ≈ 0,87."}
+];
+function tabsHtml(){
+  return `<div class="tabs" role="tablist">
+    <button role="tab" data-stab="today" aria-selected="${S.sTab==="today"}">Сегодня</button>
+    <button role="tab" data-stab="course" aria-selected="${S.sTab==="course"}">Курс</button></div>`;
+}
+function lessonStatus(mi, li){
+  const c = COURSE[mi];
+  let done = c.done + (mi === 0 && S.lessonDone ? 1 : 0);
+  if (li < done) return "done";
+  if (mi === 0 && li === done) return "current";
+  return "next";
+}
+function courseHtml(){
+  const total = COURSE.reduce((a,c) => a + c.lessons.length, 0);
+  const done = COURSE.reduce((a,c) => a + c.done, 0) + (S.lessonDone ? 1 : 0);
+  const okCnt = QUIZ.filter(q => S.qa[q.id] && S.qa[q.id].ok).length;
+  let h = `<div class="card"><div class="card-h"><div><div class="eyebrow">Механика · урок 3 · около 15 минут</div><h2 style="margin-top:4px">Силы на наклонной плоскости</h2></div>
+    ${S.lessonDone ? `<span class="pill ok">Пройден</span>` : `<span class="pill wait">${okCnt} из 3</span>`}</div>
+    <div class="theory">${THEORY.map(([t,b]) => `<div class="th"><b>${esc(t)}</b>${esc(b)}</div>`).join("")}</div>
+    <div class="eyebrow" style="margin:16px 0 4px">Проверь себя: задания части 1 · g = 10 м/с²</div>
+    <div>${QUIZ.map((q,i) => {
+      const a = S.qa[q.id] || {};
+      return `<div class="qz"><p><b class="mono">${i+1}.</b> ${esc(q.text)}</p>
+        <div class="qz-row"><input id="qa-${q.id}" inputmode="decimal" aria-label="Ответ на вопрос ${i+1}" value="${esc(a.val || "")}" class="${a.ok ? "ok" : ""}" ${a.ok ? "disabled" : ""}>
+        ${a.ok ? "" : `<button class="btn sm" data-check="${q.id}">Проверить</button>`}</div>
+        ${a.ok ? `<p class="fb ok">${esc(q.ok)}</p>` : a.tries ? `<p class="fb bad">Пока не то. ${esc(q.hint)}</p>` : ""}
+      </div>`;}).join("")}</div>
+    ${S.lessonDone ? `<div class="actions"><button class="btn pri" data-stab="today">К задаче недели №22</button></div>` : ""}
+  </div>`;
+  h += `<div class="card"><div class="card-h"><h2>Курс «Физика ЕГЭ-2027»</h2><span class="muted mono" style="font-size:13px">${done} из ${total} уроков</span></div>
+    <p class="muted" style="font-size:13.5px;margin-bottom:12px">Порядок уроков ставит преподаватель. В каждом уроке короткая теория и задачи части 1, после него задача части 2 в плане недели.</p>
+    ${COURSE.map((c,mi) => { const d = c.done + (mi===0 && S.lessonDone ? 1 : 0); return `<div class="mod-c"><h3><span>${esc(c.name)}</span><span class="mono muted" style="font-weight:400;font-size:13px">${d}/${c.lessons.length}</span></h3>
+      <div class="lessons">${c.lessons.map((l,li) => { const st = lessonStatus(mi,li); return `<div class="les"><span class="st ${st}"></span><span style="min-width:0">${esc(l)}</span>${st==="done" ? `<span class="pill ok">пройден</span>` : st==="current" ? `<span class="pill warn">сейчас</span>` : `<span class="muted" style="font-size:12.5px">впереди</span>`}</div>`; }).join("")}</div></div>`; }).join("")}
+  </div>`;
+  return h;
+}
+function checkQuiz(id){
+  const q = QUIZ.find(x => x.id === id); if (!q) return;
+  const inp = $("#qa-" + id); const raw = inp ? inp.value.trim() : "";
+  const v = parseFloat(raw.replace(",", "."));
+  const a = S.qa[id] || {tries:0};
+  a.val = raw;
+  if (!raw || isNaN(v)){ toast("Введи число."); return; }
+  markActive();
+  if (Math.abs(v - q.ans) <= q.tol){ a.ok = true; }
+  else { a.tries = (a.tries || 0) + 1; if (a.tries === 2) { addMsg("i", "Вижу, вопрос " + (QUIZ.indexOf(q)+1) + " не поддаётся. Это нормально. " + q.hint); setFace("thinking"); } }
+  S.qa[id] = a;
+  if (!S.lessonDone && QUIZ.every(x => S.qa[x.id] && S.qa[x.id].ok)){
+    S.lessonDone = true;
+    const first = QUIZ.every(x => !S.qa[x.id].tries);
+    addMsg("i", first ? "Урок пройден: три из трёх с первой попытки. Особенно хорошо, что не перепутала трение покоя с μN, на этом ошибаются многие." :
+      "Урок пройден: три из трёх. Где ошиблась, разобралась сама, это и есть подготовка. Теперь задача №22 пойдёт легче.", {tag:"урок пройден"});
+    setFace("proud"); toast("Урок пройден. Следующий открыт: импульс.");
+  }
+  renderStudent();
+}
+
+/* ---------- сценарий показа ---------- */
+const TOUR = [
+  {t:"Знакомство с Искрой", say:"Искра спрашивает цель и что тревожит. Ученица видит, что о ней запомнили, и может удалить.", go(){ setRole("student"); S.sTab="today"; S.intro = 0; S.introAns = {}; renderStudent(); window.scrollTo({top:0}); }},
+  {t:"Ученица отмечает «Тревожно»", say:"Платформа начинает с состояния ученика, а потом уже задачи.", go(){ setRole("student"); S.sTab="today"; renderStudent(); const b = document.querySelector('[data-mood="anx"]'); if (b) b.click(); }},
+  {t:"Подсказка и «Сдаюсь»", say:"ИИ не решает за ученика: ведёт по шагам, готовое решение только после попытки.", go(){ setRole("student"); S.sTab="today"; renderStudent(); const h = document.querySelector('[data-act="hint"]'); if (h && !h.disabled) h.click(); const g = document.querySelector('[data-act="giveup"]'); if (g) g.click(); }},
+  {t:"Решение на проверку", say:"ИИ ставит предварительный балл по критериям ФИПИ, финальный ставит преподаватель.", go(){ setRole("student"); S.sTab="today"; S.draft = "Ось x вдоль плоскости. ma = mg sin30 + μN, N = mg cos30. a = g(sin30 + μ cos30) = 6,73 м/с². v0^2 = 2as, s = 36/13,46 = 2,7 м. Ответ: 2,7 м"; renderStudent(); const s = document.querySelector('[data-act="submit"]'); if (s) s.click(); }},
+  {t:"Пульт преподавателя", say:"Преподаватель видит сигналы и подтверждает баллы, но не читает переписку: контроль без слежки.", go(){ setRole("teacher"); }},
+  {t:"Два дня вперёд", say:"Платформа пишет первой, но не ночью и не чаще раза в день.", go(){ setRole("student"); S.sTab="today"; nextDay(); nextDay(); }},
+  {t:"Отчёт родителю", say:"Родитель платит и получает отчёт, но только после одобрения преподавателя.", go(){ setRole("parent"); }},
+  {t:"Курс: мини-урок", say:"Короткая теория и задачи с мгновенной проверкой, Искра реагирует на ошибки.", go(){ setRole("student"); S.sTab="course"; renderStudent(); }}
+];
+function renderTour(){
+  const el = $("#tour");
+  el.hidden = !S.tourOpen;
+  $("#tourBtn").setAttribute("aria-expanded", String(S.tourOpen));
+  if (!S.tourOpen) return;
+  el.innerHTML = `<div class="card tour"><div class="card-h"><h2>Показ за 5 минут</h2><button class="x" data-tour-close="1">скрыть</button></div>
+    <ol>${TOUR.map((s,i) => `<li class="${S.tourDone[i] ? "done" : ""}"><span class="num">${i+1}</span><span style="min-width:0"><b>${esc(s.t)}</b><span class="say">${esc(s.say)}</span></span><button class="btn sm ${S.tourDone[i] ? "" : "pri"}" data-tour="${i}">${S.tourDone[i] ? "Ещё раз" : "Показать"}</button></li>`).join("")}</ol>
+  </div>`;
+}
+
+function shortText(t){ t = String(t).trim(); const m = t.match(/^.{20,220}?[.!?](\s|$)/); if (m) return m[0].trim(); return t.length > 220 ? t.slice(0, 217).trim() + "…" : t; }
+/* ---------- проверка решения ---------- */
+let photoFile = null;
+function checkPrompt(text, hasImg){
+  return `Ты эксперт предметной комиссии ЕГЭ по физике. Проверь решение задания №22 (максимум 2 балла) строго по критериям ФИПИ. Не завышай балл.
+Условие: ${TASK}
+Эталон: a = g(sinα + μcosα) ≈ 6,73 м/с², s = v₀²/(2a) ≈ 2,7 м (g = 10 м/с²).
+Элементы полного решения: I. записаны необходимые законы (второй закон Ньютона в проекциях, формула силы трения, кинематика); II. описаны вновь вводимые обозначения (константы, обозначения из условия и стандартные обозначения кодификатора описывать не нужно); III. проведены преобразования и расчёты до правильного числа; IV. правильный ответ с единицами.
+2 балла: есть все элементы I-IV.
+1 балл: все необходимые законы записаны верно и преобразования направлены на решение, но II неполон или отсутствует, и(или) ошибки в преобразованиях или пропущены важные шаги, и(или) нет IV или в нём ошибка (в том числе в единицах).
+0 баллов: остальные случаи, в том числе нет одной из необходимых исходных формул.
+${hasImg ? "Решение ученицы на приложенном фото." : ""}${text ? "\nТекст ученицы: " + text.slice(0, 3000) : ""}
+Ответь только JSON без пояснений: {"score":0,"summary":"одно предложение для преподавателя","missing":["чего не хватает, коротко"],"next":"один совет ученице на ты, 1-2 предложения, без длинного тире","unclear":false}`;
+}
+function localCheck(text, hasImg){
+  const s = (text || "").replace(/,/g, ".");
+  const nums = (s.match(/\d+(?:\.\d+)?/g) || []).map(Number);
+  const numOk = nums.some(n => n >= 2.6 && n <= 2.8);
+  const laws = /(ньютон|ma\s*=|=\s*ma|μ|mu|sin|cos|v.?\^?2|v²|2as|2\s*a\s*s)/i.test(s);
+  const unit = /\d\s*м(?![а-яёa-z])/i.test(s);
+  if (/[-−]\s*μ/.test(s)) return {score:0, summary:"Ошибка в исходной формуле: неверный знак силы трения.", missing:["I: второй закон Ньютона записан с неверным знаком силы трения"], next:"Шайба едет вверх, трение направлено вниз, как и mg·sinα. Они складываются. Исправь знак и пересчитай.", unclear:false};
+  if (!text && hasImg) return {score:null, summary:"ИИ-проверка в этом просмотре недоступна, фото ушло преподавателю.", missing:[], next:"Фото у преподавателя. Пока ждём, можешь сверить ход с подсказками.", unclear:false};
+  if (numOk && laws && unit) return {score:2, summary:"Законы записаны, ответ 2,7 м с единицами. Обозначения стоит проверить глазами.", missing:[], next:"Ответ сходится. Проверь, что все новые обозначения подписаны, это критерий II.", unclear:false};
+  if (numOk && laws) return {score:1, summary:"Ход верный, ответ без единиц измерения.", missing:["IV: ответ без единиц измерения"], next:"Почти. Допиши единицы в ответе, без них теряется балл.", unclear:false};
+  if (numOk) return {score:0, summary:"Верное число без записи законов.", missing:["I: не записаны второй закон Ньютона и формула силы трения"], next:"Число верное, но без законов это 0 баллов. Запиши второй закон Ньютона в проекциях, и всё сложится.", unclear:false};
+  if (laws) return {score:1, summary:"Законы есть, но ответ не получен или неверный.", missing:["III: расчёт не доведён до верного числа"], next:"Законы верные. Проверь знак силы трения: она тоже тормозит шайбу.", unclear:false};
+  return {score:0, summary:"Нет необходимых законов и верного ответа.", missing:["I: нет исходных формул"], next:"Начни с рисунка сил и второго закона Ньютона. Подсказка 1 поможет.", unclear:false};
+}
+async function submitSolution(){
+  const text = ($("#draft") ? $("#draft").value : S.draft).trim();
+  S.draft = text;
+  if (!text && !photoFile){ toast("Добавь фото решения или напиши ход решения."); return; }
+  markActive();
+  S.subCount = (S.subCount || 0) + 1;
+  S.sub = {state:"checking", text, fileName: photoFile ? photoFile.name : "", ai:null, final:null};
+  S.tasks.find(t => t.id === "t3").status = "checking";
+  setFace("thinking"); renderStudent();
+  let res = null;
+  if (sample){
+    try{
+      let imgs;
+      if (photoFile){ const caps = await sample.limits().catch(() => null); if (caps && caps.images) imgs = [photoFile]; }
+      if (text || imgs){
+        const opts = {cache:false};
+        if (imgs) opts.images = imgs;
+        res = await sample.json(checkPrompt(text, !!imgs), opts);
+      }
+    }catch(e){ dropAI(e); res = null; }
+  }
+  if (!res || (res.score !== null && typeof res.score !== "number")) res = localCheck(text, !!photoFile);
+  if (typeof res.score === "number") res.score = Math.max(0, Math.min(2, Math.round(res.score)));
+  res.missing = Array.isArray(res.missing) ? res.missing.slice(0,4).map(x => shortText(x)) : [];
+  S.sub.ai = res; S.sub.state = "review";
+  S.queue = S.queue.filter(q => q.id !== "qm");
+  S.queue.unshift({id:"qm",student:"Маша",task:"№22: шайба на наклонной",source: photoFile ? "фото" : "текст",ai:res.score,summary:shortText(res.summary || ""),missing:res.missing,sel:res.score == null ? 1 : res.score});
+  const good = res.score === 2;
+  setFace(good ? "proud" : "happy");
+  addMsg("i", good ? "Ты довела задачу до ответа сама. Предварительно 2 из 2, преподаватель подтвердит сегодня." :
+    "Работа у меня. " + (res.next || "Есть что поправить, преподаватель посмотрит и подтвердит балл.") + " Попытка засчитана, это главное.", {tag:"проверка"});
+  renderStudent(); renderTeacherIfOpen();
+}
+
+/* ---------- Искра пишет первой ---------- */
+function proactive(){
+  if (!S.settings.proactive) return null;
+  const sub = !!S.sub, dueIn = DUE_T3 - S.day;
+  if (S.idle >= 3){
+    if (!S.idleFlagged){ S.flags.unshift({id:"fi",student:"Маша",level:"high",text:"3 дня без активности. Искра написала, ждём ответа. Если молчит до завтра, стоит написать лично.",time:DAYS[S.day].split(" ")[0]+" "+sendTime(),done:false}); S.idleFlagged = true; }
+    return {face:"worried", text:"Маша, тебя три дня не было. Всё в порядке? Можно просто ответить «устала», и мы подстроим план под тебя."};
+  }
+  if (!sub && dueIn < 0){
+    if (!S.overdueFlagged){ S.flags.unshift({id:"fo",student:"Маша",level:"mid",text:"Задача №22 просрочена. Решение открылось по сроку, попытки не было.",time:DAYS[S.day].split(" ")[0]+" "+sendTime(),done:false}); S.overdueFlagged = true; }
+    return {face:"worried", text:"Срок по задаче про шайбу прошёл. Ничего не потеряно: решение я открыла, разбери его и попробуй похожую задачу. Преподаватель в курсе, ругать никто не будет."};
+  }
+  if (!sub && dueIn === 0) return {face:"happy", text:"Сегодня до 23:59 срок задачи про шайбу. Хватит 15 минут: подсказки уже ждут. Начнём с рисунка?"};
+  if (!sub && dueIn === 1) return {face:"happy", text:"Завтра срок задачи про шайбу. Давай разобьём её на 3 шага по 7 минут. Первый: рисунок сил. Когда тебе удобно, после 17:00?"};
+  if (S.lostStreak) return {face:"sleepy", text:"Серия прервалась, так бывает у всех. Начнём новую сегодня: одна задача из части 1, 5 минут."};
+  if (sub && S.sub.final != null) return {face:"proud", text:"Неделя закрыта: все три пункта плана. На следующей неделе пойдём в импульс, там пригодится то, что ты разобрала про силы."};
+  if (S.day % 7 === 6) return {face:"happy", text:"Воскресенье, неделя почти закрыта. Три вопроса на минуту: что получилось, что было трудно и что поменяем на следующей неделе? Можно одним сообщением."};
+  return {face:"happy", text:"Доброе утро! В плане на сегодня 15 минут: задача про шайбу. Как настроение?"};
+}
+function nextDay(){
+  if (S.day >= DAYS.length - 1){ toast("Демо закончилось. Нажмите «Сброс»."); return; }
+  const was = S.activeToday;
+  S.day++; S.activeToday = false; S.time = sendTime();
+  S.moodLog.push(S.mood);
+  S.lostStreak = false;
+  if (was){ S.streak++; S.maxStreak = Math.max(S.maxStreak || 0, S.streak); } else { S.idle++; if (S.streak > 0){ S.lostStreak = true; S.streak = 0; } }
+  S.mood = null; S.heroSay = null;
+  if (S.day > DUE_T3 && !S.sub){ S.tasks.find(t => t.id === "t3").status = "todo"; }
+  const p = proactive();
+  if (p){
+    addMsg("i", p.text, {tag:"Искра написала первой", time:S.time});
+    S.heroSay = p.text; setFace(p.face);
+    toast("Искра написала первой в " + S.time + (S.settings.quiet ? ", тихие часы 21:00–09:00 соблюдены" : ""));
+  } else {
+    toast("Новый день. Искра молчит: преподаватель выключил сообщения первой.");
+  }
+  renderAll();
+}
+
+/* ---------- экран преподавателя ---------- */
+function moodDots(arr){
+  return `<span class="moodline">${arr.slice(-5).map(k => `<span class="dot" title="${k ? MOODS[k].label : "не отмечено"}" style="background:${k ? MOODS[k].color : "var(--line)"}"></span>`).join("")}</span>`;
+}
+function mashaRow(){
+  const done = S.tasks.filter(t => t.status === "done").length;
+  const overdue = S.day > DUE_T3 && !S.sub;
+  let risk = ["ok","в графике"];
+  if (S.idle >= 3 || S.anxFlagged) risk = ["bad","нужен контакт"];
+  else if (overdue || S.mood === "anx") risk = ["warn","присмотреться"];
+  return {key:"masha", name:"Маша", cls:"11 класс", total:S.tasks.length, done, moods:[...S.moodLog, S.mood], last: S.activeToday ? "сегодня" : (S.idle === 0 ? "вчера" : S.idle + " дн. назад"), gave:S.gaveUp, risk};
+}
+function renderTeacher(){
+  const open = S.flags.filter(f => !f.done).length;
+  const pend = S.queue.length;
+  const rows = [mashaRow(),
+    {name:"Артём",cls:"11 класс",done:2,moods:["ok","good","ok","ok","tired"],last:"вчера",gave:3,risk:["warn","застрял на №23"]},
+    {name:"Вика",cls:"10 класс",done:0,moods:["tired","anx","anx",null,null],last:"4 дн. назад",gave:0,risk:["bad","нужен контакт"]}];
+  const doneAll = rows.reduce((a,r) => a + r.done, 0);
+  const lvl = {high:["var(--bad)","срочно"],mid:["var(--warn)","внимание"],info:["var(--pen)","для сведения"]};
+  let h = `<div class="kpis">
+    <div class="stat"><div class="v">3</div><div class="k">ученика в группе</div></div>
+    <div class="stat"><div class="v" style="color:${open ? "var(--bad)" : "var(--ok)"}">${open}</div><div class="k">сигналов ждут реакции</div></div>
+    <div class="stat"><div class="v">${pend}</div><div class="k">${plural(pend,"проверка","проверки","проверок")} на подтверждение</div></div>
+    <div class="stat"><div class="v">${doneAll} из ${rows.reduce((a,r) => a + (r.total || 3), 0)}</div><div class="k">заданий недели сдано</div></div>
+  </div>
+  <div class="t-grid"><div class="stack">
+    <div class="card"><div class="card-h"><h2>Сигналы от Искры</h2><span class="muted" style="font-size:13px">ИИ замечает, решает человек</span></div>
+      ${S.flags.length ? S.flags.map(f => `<div class="sig ${f.done ? "done" : ""}"><span class="bar-s" style="background:${lvl[f.level][0]}"></span>
+        <div style="min-width:0"><div style="display:flex;gap:8px;align-items:baseline;flex-wrap:wrap"><b>${esc(f.student)}</b><span class="pill" style="background:var(--surface-2);color:${lvl[f.level][0]}">${lvl[f.level][1]}</span><span class="muted mono" style="font-size:12px">${esc(f.time)}</span></div><p style="margin-top:4px;font-size:14px">${esc(f.text)}</p></div>
+        ${f.done ? `<span class="pill ok">решено</span>` : `<button class="btn sm" data-flag="${f.id}">Решено</button>`}</div>`).join("") : `<p class="muted">Сигналов нет.</p>`}
+    </div>
+    <div class="card"><div class="card-h"><h2>Проверки на подтверждение</h2><span class="muted" style="font-size:13px">ученик видит балл только после вас</span></div>
+      ${S.queue.length ? S.queue.map(q => `<div class="q">
+        <div style="display:flex;gap:8px;align-items:baseline;flex-wrap:wrap"><b>${esc(q.student)}</b><span>${esc(q.task)}</span><span class="pill todo">${esc(q.source)}</span></div>
+        <div style="font-size:14px"><span class="muted">ИИ предварительно:</span> <b class="mono">${q.ai == null ? "нет оценки" : q.ai + " / 2"}</b>. ${esc(q.summary)}</div>
+        ${q.missing && q.missing.length ? `<ul style="margin:0;padding-left:18px;font-size:13.5px">${q.missing.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}
+        <div class="scores"><span class="muted" style="font-size:13px;margin-right:4px">Ваша оценка:</span>${[0,1,2].map(s => `<button data-q="${q.id}" data-s="${s}" aria-pressed="${q.sel===s}">${s}</button>`).join("")}
+        <button class="btn pri sm" data-confirm="${q.id}" style="margin-left:6px">${q.ai != null && q.sel !== q.ai ? "Исправить и подтвердить" : "Подтвердить"}</button></div>
+      </div>`).join("") : `<p class="muted">Очередь пуста.</p>`}
+    </div>
+    ${aiQualityCard()}
+  </div><div class="stack">
+    ${teacherDetail()}
+    <div class="card"><div class="card-h"><h2>Ученики</h2><span class="muted" style="font-size:13px">настроение за 5 дней</span></div>
+      <div class="tbl"><table><thead><tr><th>Ученик</th><th>Неделя</th><th>Настроение</th><th>Был</th><th>«Сдаюсь»</th><th>Статус</th></tr></thead><tbody>
+      ${rows.map(r => `<tr><td>${r.key ? `<button class="linkbtn" data-student="${r.key}">${esc(r.name)}</button>` : `<b>${esc(r.name)}</b>`}<br><span class="muted" style="font-size:12.5px">${esc(r.cls)}</span></td>
+        <td class="mono">${r.done}/${r.total || 3}</td><td>${moodDots(r.moods)}</td><td>${esc(r.last)}</td><td class="mono">${r.gave}</td>
+        <td><span class="pill ${r.risk[0]}">${esc(r.risk[1])}</span></td></tr>`).join("")}
+      </tbody></table></div>
+      <p class="muted" style="font-size:12.5px;margin-top:8px">Нажмите на имя Маши: она живая в этом демо, остальные для фона.</p>
+    </div>
+    ${digestCard()}
+    ${assignCard()}
+    <div class="card"><div class="card-h"><h2>Правила Искры</h2><span class="muted" style="font-size:13px">действуют сразу</span></div>
+      <div class="set"><div>Писать ученику первой<small>Не больше одного сообщения в день: напоминание, поддержка, «как ты?»</small></div><label class="sw"><input type="checkbox" id="set-proactive" ${S.settings.proactive ? "checked" : ""} aria-label="Писать ученику первой"><span></span></label></div>
+      <div class="set"><div>Тихие часы 21:00–09:00<small>Сообщения первой только днём</small></div><label class="sw"><input type="checkbox" id="set-quiet" ${S.settings.quiet ? "checked" : ""} aria-label="Тихие часы"><span></span></label></div>
+      <div class="set"><div>Решение только после попытки<small>«Сдаюсь» даёт следующий шаг, полное решение после сдачи или срока</small></div><label class="sw"><input type="checkbox" id="set-lock" ${S.settings.lock ? "checked" : ""} aria-label="Решение только после попытки"><span></span></label></div>
+      <div class="set"><div>Тон и границы<small>На «ты», тепло, без обещаний баллов. Переписку с учеником вы не читаете, видите только сигналы.</small></div></div>
+    </div>
+    <div class="card"><div class="card-h"><h2>Отчёт родителю Маши</h2>${S.report.approved ? `<span class="pill ok">Отправлен</span>` : `<span class="pill warn">Черновик</span>`}</div>
+      <p style="font-size:14px">Искра собрала отчёт за 12–18 окт. Родитель получит его только после вашего одобрения.</p>
+      <div class="actions"><button class="btn" data-role-go="parent">Посмотреть</button>${S.report.approved ? "" : `<button class="btn pri" data-act="approve">Одобрить и отправить</button>`}</div>
+    </div>
+  </div></div>`;
+  $("#v-teacher").innerHTML = h;
+}
+function renderTeacherIfOpen(){ if (S.role === "teacher") renderTeacher(); }
+
+
+/* ---------- пульт: карточка ученицы и задания ---------- */
+function teacherDetail(){
+  if (S.tDetail !== "masha") return "";
+  const days = DAYS.slice(0, S.day + 1).map(d => d.split(" ")[0]);
+  const moods = [...S.moodLog, S.mood];
+  const weak = KIM.map((v,i) => [i+1,v]).filter(x => x[1] > 0).sort((a,b) => a[1]-b[1]).slice(0,4);
+  return `<div class="card"><div class="card-h"><h2>Маша, 11 класс</h2><button class="x" data-act="closeDetail">закрыть</button></div>
+    <div class="eyebrow" style="margin-bottom:6px">Настроение по дням</div>
+    <div class="trend">${moods.map((k,i) => `<span style="${k ? "color:" + MOODS[k].color : ""}">${esc(days[i] || "")}: ${k ? MOODS[k].label.toLowerCase() : "не отмечала"}</span>`).join("")}</div>
+    <div class="eyebrow" style="margin:14px 0 6px">Слабые номера КИМ</div>
+    <p style="font-size:14px">${weak.map(([n,v]) => `№${n}: ${v}%`).join(" · ")}. Части 2 пока мало, это нормально для октября.</p>
+    <div class="eyebrow" style="margin:14px 0 6px">План</div>
+    <div class="plan">${S.tasks.map(t => `<div class="row"><span class="kind">${esc(t.kind)}</span><span style="min-width:0">${esc(t.title)}</span>${statusPill(t)}</div>`).join("")}</div>
+    <div class="eyebrow" style="margin:14px 0 6px">Что Искра о ней помнит</div>
+    <p style="font-size:14px">${S.memory.length ? S.memory.map(esc).join(" · ") : "ничего, ученица всё удалила"}</p>
+    <div class="submit" style="margin-top:14px">
+      <label for="t-msg" class="eyebrow">Написать Маше от своего имени</label>
+      <textarea id="t-msg" placeholder="Например: видел, что неделя тяжёлая. Давай в субботу разберём №22 вместе, 15 минут.">${esc(S.tDraft || "")}</textarea>
+      <div class="actions" style="margin-top:0"><button class="btn pri" data-act="tmsg">Отправить в чат Маши</button><span class="muted" style="font-size:13px;align-self:center">Искра увидит и подхватит</span></div>
+    </div>
+  </div>`;
+}
+function assignCard(){
+  const opts = [];
+  for (let d = S.day; d < DAYS.length; d++) opts.push(`<option value="${d}" ${d === Math.min(S.day + 3, DAYS.length - 1) ? "selected" : ""}>${esc(DAYS[d])}</option>`);
+  return `<div class="card"><div class="card-h"><h2>Назначить задание</h2><span class="muted" style="font-size:13px">появится в плане, Искра скажет сама</span></div>
+    <form class="form" id="assignForm">
+      <label>Ученик<select id="as-student"><option value="masha">Маша</option><option value="artem">Артём</option><option value="vika">Вика</option></select></label>
+      <label>Тип<select id="as-kind"><option>Задача</option><option>Тест</option><option>Урок</option></select></label>
+      <label class="full">Что сделать<input id="as-title" value="№23: неупругий удар, закон сохранения импульса"></label>
+      <label>Срок<select id="as-due">${opts.join("")}</select></label>
+      <div style="display:flex;align-items:flex-end"><button class="btn pri" type="submit">Назначить</button></div>
+    </form></div>`;
+}
+function assignTask(){
+  const who = $("#as-student").value, kind = $("#as-kind").value, title = $("#as-title").value.trim(), due = +$("#as-due").value;
+  if (!title){ toast("Напишите, что сделать."); return; }
+  if (who !== "masha"){ toast("Назначено " + (who === "artem" ? "Артёму" : "Вике") + ". Искра скажет ученику сама."); return; }
+  S.tasks.push({id:"t" + (S.tasks.length + 1), kind, title, due, status:"todo", note:""});
+  addMsg("i", "Преподаватель добавил в план: «" + title + "», срок " + DAYS[due] + ". Когда удобно начать? Могу разбить на шаги по 10 минут.", {tag:"новое задание"});
+  toast("Задание в плане Маши. Искра уже написала ей.");
+  renderAll();
+}
+function sendTeacherMsg(){
+  const el = $("#t-msg"); const text = el ? el.value.trim() : "";
+  if (!text){ toast("Напишите сообщение."); return; }
+  addMsg("t", text, {tag:"Денис, преподаватель"});
+  S.lastTeacher = text; S.tDraft = "";
+  toast("Маша увидит сообщение в чате.");
+  renderTeacher();
+}
+
+
+/* ---------- знакомство и поддержка родителя ---------- */
+const INTRO = [
+  {q:"Давай познакомимся. На сколько баллов целишься?", key:"goal", opts:["70+","80+","90+","Пока не знаю"]},
+  {q:"Что в подготовке беспокоит больше всего?", key:"fear", opts:["Задачи части 2","Не хватает времени","Забываю формулы","Боюсь самого экзамена"]},
+  {q:"Когда тебе удобнее заниматься?", key:"time", opts:["Утром до школы","Сразу после школы","Вечером после 19:00"]}
+];
+const PARENT_MSG = ["Горжусь, что ты не бросаешь", "Видела отчёт: здорово, что разобралась с трением", "Если устала, отдохни. Я рядом"];
+function introHtml(){
+  const st = INTRO[S.intro];
+  return `<div class="card hero">
+    <div class="mascot bob" id="heroMascot">${mascot("happy")}</div>
+    <div style="min-width:0">
+      <div class="eyebrow">Знакомство · шаг ${S.intro + 1} из ${INTRO.length}</div>
+      <h1>${esc(st.q)}</h1>
+      <div class="moods">${st.opts.map(o => `<button class="chip" data-intro="${esc(o)}">${esc(o)}</button>`).join("")}</div>
+      <p class="note">Я запомню ответ, и ты всегда сможешь его удалить. <button class="x" data-act="introSkip">пропустить</button></p>
+    </div></div>`;
+}
+function answerIntro(v){
+  S.introAns = S.introAns || {};
+  S.introAns[INTRO[S.intro].key] = v;
+  if (S.intro < INTRO.length - 1){ S.intro++; renderStudent(); return; }
+  const a = S.introAns;
+  S.memory = [
+    a.goal === "Пока не знаю" ? "Цель пока не выбрана, вернёмся к ней после пробника" : "Цель: " + a.goal + " баллов",
+    "Больше всего беспокоит: " + a.fear.toLowerCase(),
+    "Удобно заниматься: " + a.time.toLowerCase()
+  ];
+  const fearReply = {
+    "Задачи части 2":"Часть 2 будем брать с двухбалльных задач, как №22 на этой неделе.",
+    "Не хватает времени":"Буду собирать план из коротких шагов по 10-15 минут.",
+    "Забываю формулы":"В каждом уроке будет короткое повторение формул, по 3 минуты.",
+    "Боюсь самого экзамена":"Сделаем пробники в спокойном режиме, чтобы экзамен стал знакомым."
+  }[a.fear] || "";
+  const timeReply = a.time === "Вечером после 19:00" ? " Напоминать буду в 19:00, после 21:00 не пишу." : a.time === "Утром до школы" ? " Напоминать буду накануне в 19:00: утром до 9:00 у меня тихие часы, не хочу будить." : " Напоминать буду в 15:30."
+  S.intro = null; markActive(); setFace("proud");
+  addMsg("i", "Запомнила: " + S.memory.join("; ").toLowerCase() + ". " + fearReply + timeReply + " Всё это видно в блоке «Что Искра о тебе помнит», любое можно удалить.", {tag:"знакомство"});
+  renderStudent();
+}
+function sendParent(i){
+  const t = PARENT_MSG[i]; if (!t) return;
+  S.lastParent = t;
+  addMsg("p", t, {tag:"Мама"});
+  toast("Маша увидит сообщение в чате.");
+  renderParent();
+}
+
+
+/* ---------- награды, точность ИИ, сводка ---------- */
+function badgesHtml(){
+  const quizComeback = QUIZ.some(q => S.qa[q.id] && S.qa[q.id].ok && S.qa[q.id].tries);
+  const subComeback = (S.subCount || 0) >= 2;
+  const list = [
+    ["Пять дней подряд", "серия занятий", (S.maxStreak || 0) >= 5],
+    ["Честно про настроение", "отметила, как ты", !!S.everMood],
+    ["Первая задача части 2", "отправила решение", (S.subCount || 0) >= 1],
+    ["Не сдалась после ошибки", "исправила и дошла", quizComeback || subComeback],
+    ["Урок без подсказок", "три из трёх сразу", S.lessonDone && QUIZ.every(q => S.qa[q.id] && !S.qa[q.id].tries)],
+    ["Знакомство с Искрой", "рассказала о цели", !!(S.introAns && S.introAns.time)]
+  ];
+  const got = list.filter(x => x[2]).length;
+  return `<div class="card"><div class="card-h"><h2>Награды за усилия</h2><span class="muted" style="font-size:13px">${got} из ${list.length} · за старание, а не за баллы</span></div>
+    <div class="badges">${list.map(([t,d,on]) => `<div class="badge ${on ? "on" : "off"}"><b>${esc(t)}</b><span class="muted">${on ? esc(d) : "ещё впереди"}</span></div>`).join("")}</div></div>`;
+}
+function aiQualityCard(){
+  const A = S.agree;
+  return `<div class="card"><div class="card-h"><h2>ИИ и преподаватель</h2><span class="muted" style="font-size:13px">считается в этом демо</span></div>
+    ${A.total ? `<p><span class="score mono">${A.same} из ${A.total}</span> <span class="muted">оценок ИИ совпали с вашими</span></p>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px">${A.log.slice(0,5).map(l => `<div style="display:flex;justify-content:space-between;gap:10px;font-size:14px;flex-wrap:wrap"><span>${esc(l.student)} · ${esc(l.task)}</span><span class="pill ${l.ai === l.final ? "ok" : "warn"}">ИИ ${l.ai}, вы ${l.final}</span></div>`).join("")}</div>`
+      : `<p class="muted">Подтвердите хотя бы одну проверку, и здесь появится сравнение.</p>`}
+    <p class="muted" style="font-size:13px;margin-top:10px">Каждое подтверждение сохраняет пару «оценка ИИ и оценка эксперта». Так копится размеченный набор для замера точности проверки (QWK) в ВКР.</p>
+  </div>`;
+}
+function digestData(){
+  const m = mashaRow();
+  return [
+    `Маша, 11 класс: план ${m.done} из ${m.total}, была ${m.last}, «сдаюсь» ${m.gave}, настроение за дни: ${m.moods.map(k => k ? MOODS[k].label.toLowerCase() : "нет").join(", ")}, статус: ${m.risk[1]}${S.sub && S.sub.ai ? ", №22 ИИ предварительно " + S.sub.ai.score + "/2" : ""}.`,
+    "Артём, 11 класс: план 2 из 3, был вчера, «сдаюсь» 3 раза на №23 (импульс), статус: застрял на №23.",
+    "Вика, 10 класс: план 0 из 3, 4 дня без активности, два дня отмечала тревогу, Искра писала дважды без ответа.",
+    "Открытые сигналы: " + (S.flags.filter(f => !f.done).map(f => f.student + ": " + f.text).join(" | ") || "нет") + ".",
+    "Проверок ждут подтверждения: " + S.queue.length + "."
+  ].join("\n");
+}
+function fallbackDigest(){
+  const m = mashaRow();
+  return [
+    "1. В первую очередь Вика: 4 дня тишины и тревога. Лучше написать лично сегодня, без разговора о заданиях.",
+    "2. Артём застрял на импульсе, а не ленится. Короткий разбор №23 вместе на 10 минут снимет блок.",
+    "3. Маша: план " + m.done + " из " + m.total + ", " + (m.risk[0] === "ok" ? "идёт в графике. Можно отметить старание в отчёте родителю." : "нужно внимание: " + m.risk[1] + "."),
+    S.queue.length ? "4. На подтверждении " + S.queue.length + " " + plural(S.queue.length, "проверка", "проверки", "проверок") + ". Ученики ждут балл." : "4. Все проверки подтверждены, ученики видят баллы."
+  ].join("\n");
+}
+function digestCard(){
+  const D = S.digest;
+  return `<div class="card"><div class="card-h"><h2>Сводка недели</h2><span class="muted" style="font-size:13px">собирает Искра, решаете вы</span></div>
+    ${D.state === "idle" ? `<p class="muted" style="font-size:14px">Кому написать первым и что сделать на этой неделе, по всем ученикам за минуту.</p>` : ""}
+    ${D.state === "loading" ? `<p class="muted"><span class="typing"><i></i><i></i><i></i></span> Искра собирает сводку…</p>` : ""}
+    ${D.state === "done" ? `<div class="digest">${esc(D.text)}</div>` : ""}
+    <div class="actions"><button class="btn ${D.state === "done" ? "" : "pri"}" data-act="digest" ${D.state === "loading" ? "disabled" : ""}>${D.state === "done" ? "Собрать заново" : "Собрать сводку"}</button></div>
+  </div>`;
+}
+async function makeDigest(){
+  S.digest = {state:"loading", text:""}; renderTeacher();
+  let text = "";
+  if (sample){
+    try{
+      const r = await sample("Ты помощник преподавателя физики на платформе подготовки к ЕГЭ. По данным ниже составь сводку недели: 3-5 пронумерованных пунктов, с кого начать и какое одно действие сделать по каждому. Учитывай настроение, а не только задания. Пиши коротко, простым языком, без длинного тире, без markdown и эмодзи. Не выдумывай фактов сверх данных.\n\nДанные (выдуманные демо-ученики):\n" + digestData(), {cache:false});
+      text = r.text.trim();
+    }catch(e){ dropAI(e); text = ""; }
+  }
+  S.digest = {state:"done", text: text || fallbackDigest()};
+  renderTeacherIfOpen();
+}
+
+/* ---------- экран родителя ---------- */
+function renderParent(){
+  const done = S.tasks.filter(t => t.status === "done").length;
+  const t3 = S.tasks.find(t => t.id === "t3");
+  const fin = S.sub && S.sub.final != null ? S.sub.final : null;
+  const moods = [...S.moodLog, S.mood].filter(Boolean);
+  const anx = moods.filter(k => k === "anx").length + (S.anxFlagged ? 1 : 0);
+  $("#v-parent").innerHTML = `<div class="card report">
+    <div class="eyebrow">Еженедельный отчёт · 12–18 октября</div>
+    <h1 style="margin-top:6px">Маша, 11 класс: физика, подготовка к ЕГЭ</h1>
+    ${S.report.approved ? `<div class="banner ok">Одобрено преподавателем и отправлено ${esc(DAYS[S.day])} в ${esc(S.time)}.</div>` : `<div class="banner wait">Черновик. Вы увидите отчёт, когда преподаватель его проверит и одобрит.</div>`}
+    <div class="rep-grid">
+      <div class="stat"><div class="v">${done} из ${S.tasks.length}</div><div class="k">заданий плана выполнено</div></div>
+      <div class="stat"><div class="v">${Math.floor(S.minutes/60)} ч ${S.minutes%60} мин</div><div class="k">занималась на платформе</div></div>
+      <div class="stat"><div class="v">${S.streak}</div><div class="k">${plural(S.streak,"день","дня","дней")} подряд занятий</div></div>
+    </div>
+    <div class="rep-sec"><h3>Что сделано</h3>
+      <p>Урок по силам на наклонной плоскости: 3 из 3. Тест по динамике: 6 из 8, ошибки в проекции силы трения.</p>
+      <p>Задача №22 (до 2 баллов): ${fin != null ? `<b>${fin} из 2</b>, оценку подтвердил преподаватель.` : t3.status === "checking" ? "сдана, ждёт проверки преподавателя." : S.day > DUE_T3 ? "не сдана в срок. Разбор решения открыт, преподаватель в курсе." : "в работе, срок в воскресенье."}</p>
+    </div>
+    <div class="rep-sec"><h3>Как прошла неделя</h3>
+      <p>${anx ? "Были дни с тревогой перед экзаменом. Преподаватель в курсе и снизил нагрузку на эти дни. Дома лучше поддержать, чем торопить." : "Неделя ровная, занималась в своём темпе."}</p>
+      <p class="muted" style="font-size:13.5px">Переписку Маши с Искрой мы родителям не показываем: так ей спокойнее задавать «глупые» вопросы.</p>
+    </div>
+    <div class="rep-sec"><h3>План на следующую неделю</h3>
+      <p>Закон сохранения импульса: урок, тест из 8 задач и одна задача части 2. Около 2 часов за неделю.</p>
+    </div>
+    <div class="rep-sec"><h3>Комментарий преподавателя</h3>
+      <p>Маша стала увереннее раскладывать силы. Следующий шаг: аккуратно записывать обозначения, на ЕГЭ за это снимают балл.</p>
+    </div>
+    <div class="rep-sec"><h3>Поддержать Машу</h3>
+      <p class="muted" style="font-size:13.5px">Сообщение придёт в её чат с подписью «Мама». Оценки и переписку оно не открывает.</p>
+      <div class="moods">${PARENT_MSG.map((t,i) => `<button class="chip" data-pmsg="${i}">${esc(t)}</button>`).join("")}</div>
+      ${S.lastParent ? `<p class="fb ok">Отправлено: «${esc(S.lastParent)}». Маша увидит в чате.</p>` : ""}
+    </div>
+    <div class="rep-sec"><h3>Как помочь дома</h3>
+      <ul class="tips"><li>Спрашивайте, что стало понятнее, а не сколько баллов.</li><li>Не сравнивайте с другими: у каждого свой темп.</li><li>Помогите с режимом: 20-30 минут в одно и то же время полезнее, чем 3 часа раз в неделю.</li></ul>
+    </div>
+  </div>`;
+}
+
+/* ---------- общее ---------- */
+function renderHeader(){
+  $("#clock").textContent = DAYS[S.day] + ", " + S.time;
+  $("#fab").hidden = S.role !== "student";
+  renderTour();
+  ["student","teacher","parent"].forEach(r => { $("#r-" + r).setAttribute("aria-pressed", String(S.role === r)); $("#v-" + r).hidden = S.role !== r; });
+}
+function renderAll(){
+  renderHeader(); renderStudent();
+  if (S.role === "teacher") renderTeacher();
+  if (S.role === "parent") renderParent();
+}
+function setRole(r){ S.role = r; try{ localStorage.setItem("iskra-role", r); }catch(e){} renderAll(); window.scrollTo({top:0}); }
+
+document.addEventListener("click", e => {
+  const b = e.target.closest("button, [data-role]");
+  if (!b) return;
+  if (b.id === "tourBtn"){ S.tourOpen = !S.tourOpen; renderTour(); return; }
+  if (b.dataset.tourClose){ S.tourOpen = false; renderTour(); return; }
+  if (b.dataset.tour != null){ const i = +b.dataset.tour; S.tourDone[i] = true; TOUR[i].go(); renderTour(); return; }
+  if (b.id === "fab"){ document.querySelector(".chat").scrollIntoView({behavior: reduceMotion ? "auto" : "smooth", block:"start"}); setTimeout(() => $("#chatInput").focus({preventScroll:true}), 400); return; }
+  if (b.dataset.stab){ S.sTab = b.dataset.stab; renderStudent(); if (S.sTab === "today") window.scrollTo({top:0}); return; }
+  if (b.dataset.check){ checkQuiz(b.dataset.check); return; }
+  if (b.dataset.example){ S.draft = b.dataset.example === "good" ? EX_GOOD : EX_BAD; renderStudent(); const d = $("#draft"); if (d) d.focus(); return; }
+  if (b.dataset.intro){ answerIntro(b.dataset.intro); return; }
+  if (b.dataset.pmsg != null){ sendParent(+b.dataset.pmsg); return; }
+  if (b.dataset.student){ S.tDetail = S.tDetail === b.dataset.student ? null : b.dataset.student; renderTeacher(); return; }
+  if (b.dataset.role){ setRole(b.dataset.role); return; }
+  if (b.dataset.roleGo){ setRole(b.dataset.roleGo); return; }
+  if (b.dataset.mood){
+    const k = b.dataset.mood; S.mood = k; S.everMood = true; markActive();
+    setFace(MOODS[k].face);
+    addMsg("u", MOODS[k].label); addMsg("i", MOODS[k].say);
+    if (k === "anx") S.flags.unshift({id:"fa"+Date.now(),student:"Маша",level:"info",text:"Отметила настроение «тревожно». Искра предложила лёгкий день без новой темы.",time:DAYS[S.day].split(" ")[0]+" "+S.time,done:false});
+    renderStudent(); return;
+  }
+  if (b.dataset.q && b.classList.contains("chip")){ ask(b.dataset.q); return; }
+  if (b.dataset.forget != null){ const i = +b.dataset.forget; const x = S.memory[i]; S.memory.splice(i,1); addMsg("sys","Искра забыла: «" + x + "»."); renderStudent(); return; }
+  if (b.dataset.flag){ const f = S.flags.find(x => x.id === b.dataset.flag); if (f) f.done = true; renderTeacher(); return; }
+  if (b.dataset.s != null && b.dataset.q){ const q = S.queue.find(x => x.id === b.dataset.q); if (q){ q.sel = +b.dataset.s; renderTeacher(); } return; }
+  if (b.dataset.confirm){
+    const q = S.queue.find(x => x.id === b.dataset.confirm); if (!q) return;
+    S.queue = S.queue.filter(x => x.id !== q.id);
+    if (q.ai != null){ S.agree.total++; if (q.ai === q.sel) S.agree.same++; S.agree.log.unshift({student:q.student, task:q.task, ai:q.ai, final:q.sel}); }
+    if (q.id === "qm" && S.sub){
+      S.sub.final = q.sel; const t = S.tasks.find(t => t.id === "t3"); t.status = "done"; t.note = q.sel + " из 2";
+      const changed = S.sub.ai && S.sub.ai.score != null && S.sub.ai.score !== q.sel;
+      addMsg("i", q.sel === 2 ? "Преподаватель подтвердил: 2 из 2. Задача недели закрыта, и ты сделала её сама." :
+        "Преподаватель поставил " + q.sel + " из 2" + (changed ? " (я ставила " + S.sub.ai.score + ")" : "") + ". Разберём, где потерялся балл? Это 5 минут.", {tag:"оценка подтверждена"});
+      setFace(q.sel === 2 ? "proud" : "happy");
+      toast("Оценка подтверждена. Маша увидит " + q.sel + " из 2.");
+    } else {
+      toast(q.student + " увидит оценку " + q.sel + " из 2.");
+    }
+    renderAll(); return;
+  }
+  const act = b.dataset.act;
+  if (act === "hint"){ if (S.hints < 3){ S.hints++; markActive(); addMsg("i", "Подсказка " + S.hints + ": " + HINTS[S.hints-1]); setFace("thinking"); } renderStudent(); return; }
+  if (act === "giveup"){
+    S.gaveUp++; markActive();
+    if (!S.gaveUpFlagged){ S.flags.unshift({id:"fg",student:"Маша",level:"info",text:"Нажала «сдаюсь» на №22. Искра дала следующий шаг вместо готового решения.",time:DAYS[S.day].split(" ")[0]+" "+S.time,done:false}); S.gaveUpFlagged = true; }
+    if (!solutionOpen()){
+      if (S.hints < 3){ S.hints++; addMsg("i", "Понимаю, бывает тупик. Готовое решение откроется после твоей попытки, а пока вот следующий шаг: " + HINTS[S.hints-1]); }
+      else addMsg("i", "Все три подсказки у тебя. Попробуй записать решение как получится и отправь. Даже неполная попытка откроет разбор.");
+      setFace("worried");
+    } else { addMsg("i", "Открыла решение. Прочитай его и закрой экран: сможешь повторить сама?"); }
+    renderStudent(); return;
+  }
+  if (act === "submit"){ submitSolution(); return; }
+  if (act === "intro"){ S.intro = 0; S.introAns = {}; S.sTab = "today"; renderStudent(); window.scrollTo({top:0}); return; }
+  if (act === "introSkip"){ S.intro = null; renderStudent(); return; }
+  if (act === "digest"){ makeDigest(); return; }
+  if (act === "closeDetail"){ S.tDetail = null; renderTeacher(); return; }
+  if (act === "tmsg"){ sendTeacherMsg(); return; }
+  if (act === "approve"){ S.report.approved = true; toast("Отчёт отправлен родителю Маши."); renderTeacher(); return; }
+});
+document.addEventListener("input", e => { if (e.target.id === "draft") S.draft = e.target.value; if (e.target.id === "t-msg") S.tDraft = e.target.value; });
+document.addEventListener("submit", e => { if (e.target.id === "assignForm"){ e.preventDefault(); assignTask(); } });
+document.addEventListener("change", e => {
+  const t = e.target;
+  if (t.id === "photo"){ photoFile = t.files && t.files[0] || null; S.fileName = photoFile ? photoFile.name : ""; const fn = $("#fileName"); if (fn) fn.textContent = S.fileName || "фото не выбрано"; }
+  if (t.id === "set-proactive") S.settings.proactive = t.checked;
+  if (t.id === "set-quiet") S.settings.quiet = t.checked;
+  if (t.id === "set-lock") { S.settings.lock = t.checked; }
+});
+$("#composer").addEventListener("submit", e => { e.preventDefault(); const v = $("#chatInput").value; $("#chatInput").value = ""; ask(v); });
+$("#nextDay").addEventListener("click", nextDay);
+document.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.id && e.target.id.startsWith("qa-")){ e.preventDefault(); checkQuiz(e.target.id.slice(3)); } });
+$("#reset").addEventListener("click", () => { try{ localStorage.removeItem(SAVE_KEY); }catch(e){} S = initialState(); photoFile = null; start(true); save(); toast("Демо начато заново."); });
+
+const SAVE_KEY = "iskra-demo-v1";
+function save(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(S)); }catch(e){} }
+function load(){
+  try{
+    const raw = localStorage.getItem(SAVE_KEY); if (!raw) return false;
+    const d = JSON.parse(raw); if (!d || !Array.isArray(d.chat) || !d.chat.length) return false;
+    S = Object.assign(initialState(), d);
+    if (S.sub && S.sub.state === "checking"){ S.sub = null; const t = S.tasks.find(t => t.id === "t3"); if (t) t.status = "todo"; }
+    if (S.digest && S.digest.state === "loading") S.digest = {state:"idle", text:""};
+    return true;
+  }catch(e){ return false; }
+}
+setInterval(save, 1500);
+window.addEventListener("pagehide", save);
+function start(fresh){
+  $("#brandMascot").innerHTML = mascot("happy");
+  $("#fabMascot").innerHTML = mascot("happy");
+  drawQuick();
+  if (!fresh && load()){ redrawChat(); setFace(S.face || "happy"); renderAll(); return; }
+  setFace("happy");
+  msgsEl.innerHTML = "";
+  addMsg("i", "Привет, Маша! Тест по динамике: 6 из 8, и обе ошибки в одном месте, в проекции силы трения. Сегодня как раз задача про это. Как ты?", {tag:"Искра написала первой", time:"16:20"});
+  drawQuick();
+  let r = "student"; try{ r = localStorage.getItem("iskra-role") || "student"; }catch(e){}
+  S.role = ["student","teacher","parent"].includes(r) ? r : "student";
+  renderAll();
+}
+start();
+updateAI();
+})();
+</script>
+
+</body>
+</html>
